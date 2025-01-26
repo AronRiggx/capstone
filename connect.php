@@ -3,7 +3,7 @@
 $servername= "localhost";
 $name = 'root';
 $password = '';
-$db_name = 'feedEat';
+$db_name = 'feedeat';
 
 $conn = new mysqli($servername, $name, $password, $db_name);
 if($conn-> connect_error){
