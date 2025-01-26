@@ -1,3 +1,27 @@
+<?php
+session_start();
+
+include "connect.php";
+
+if (isset($_POST["submit"])) {
+
+  $uName = $_POST["username"];
+  $email = $_POST["email"];
+  $pass = $_POST["password"];
+  $conF = $_POST["confirm_password"];
+
+
+  // Insert into riceque_info table
+  $insertquery = "INSERT INTO user (Username, Email, Password) 
+  VALUES ('$uName',  '$email', '$pass')";
+  // Execute both queries
+  $results = executeQuery($insertquery);
+  
+  // Redirect to login.php
+  header("Location: login.php");
+  exit(); 
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -29,6 +53,12 @@
                         <input type="text" name="username" class="form-control" placeholder="Username" required>
                     </div>
                     <div class="form-group">
+                        <input type="text" name="firstName" class="form-control" placeholder="First Name" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" name="lastName" class="form-control" placeholder="Last Name" required>
+                    </div>
+                    <div class="form-group">
                         <input type="email" name="email" class="form-control" placeholder="Email" required>
                     </div>
                     <div class="form-group">
@@ -37,11 +67,11 @@
                     <div class="form-group">
                         <input type="password" name="confirm_password" class="form-control" placeholder="Confirm Password" required>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-block">Sign Up</button>
+                    <button type="submit" name="submit" class="btn btn-primary btn-block">Sign Up</button>
                 </form>
 
                 <div class="login-redirect mt-3">
-                    <span>Already have an account? <a href="login.html">Login</a></span>
+                    <span>Already have an account? <a href="login.php">Login</a></span>
                 </div>
             </div>
         </div>
