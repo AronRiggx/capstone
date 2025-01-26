@@ -57,7 +57,7 @@ include "connect.php";
       </div>
       <a href="#" class="w3-bar-item w3-button w3-hide-small w3-right w3-padding-large w3-hover-white"
         title="My Account">
-        <img src="/w3images/avatar2.png" class="w3-circle" style="height:23px;width:23px" alt="Avatar">
+        <img src="<?php echo $profilePicture ?>" class="w3-circle" style="height:23px;width:23px" alt="Avatar">
       </a>
     </div>
   </div>
@@ -80,8 +80,8 @@ include "connect.php";
         <div class="w3-card w3-round w3-white">
           <div class="w3-container">
             <h4 class="w3-center">My Profile</h4>
-            <p class="w3-center"><img src="/w3images/avatar3.png" class="w3-circle" style="height:106px;width:106px"
-                alt="Avatar"></p>
+            <p class="w3-center"><img src="<?php echo $profilePicture ?>" class="w3-circle"
+                style="height:106px; width:106px" alt="Avatar"></p>
             <hr>
             <p><i class="fa fa-pencil fa-fw w3-margin-right w3-text-theme"></i> Designer, UI</p>
             <p><i class="fa fa-home fa-fw w3-margin-right w3-text-theme"></i> London, UK</p>
@@ -94,7 +94,7 @@ include "connect.php";
         <div class="w3-card w3-round">
           <div class="w3-white">
             <button onclick="myFunction('Demo3')" class="w3-button w3-block w3-theme-l1 w3-left-align"><i
-                class="fa fa-users fa-fw w3-margin-right"></i>My Photos</button>
+                class="fa fa-users fa-fw w3-margin-right"></i>My Recipes</button>
             <div id="Demo3" class="w3-hide w3-container">
               <div class="w3-row-padding">
                 <br>
@@ -204,7 +204,7 @@ include "connect.php";
         <div class="w3-card w3-round w3-white w3-center">
           <div class="w3-container">
             <p>Friend Request</p>
-            <img src="/w3images/avatar6.png" alt="Avatar" style="width:50%"><br>
+            <img src="<?php echo $profilePicture ?>" alt="Avatar" style="width:50%"><br>
             <span>Jane Doe</span>
             <div class="w3-row w3-opacity">
               <div class="w3-half">
