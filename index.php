@@ -7,7 +7,49 @@ if (!isset($_SESSION['loggedin']) || !isset($_SESSION['userid'])) {
 }
 include "connect.php";
 
+$userID = $_SESSION['userid']; // Get the current user's ID
+$query = "SELECT username, profilePicture, bio, firstName, lastName FROM user WHERE userID = '$userID'";
+$result = mysqli_query($conn, $query);
+
+if ($result && mysqli_num_rows($result) > 0) {
+  $userData = mysqli_fetch_assoc($result);
+  $name = $userData['username'];
+  $profilePicture = $userData['profilePicture']; // Get profile picture URL
+  $bio = $userData['bio']; // Get user bio
+  $firstName = $userData['firstName'];
+  $lastName = $userData['lastName'];
+
+} else {
+  $profilePicture = 'default-avatar.png'; // Fallback profile picture
+  $bio = 'No bio available'; // Fallback bio\
+  $name = '???';
+  $firstName = '???';
+  $lastName = '???';
+}
 ?>
+
+<?php
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_post'])) {
+  // Validate the session and user input
+  if (isset($_SESSION['userid']) && !empty(trim($_POST['post_content']))) {
+    $userID = $_SESSION['userid']; // Get the current user's ID
+    $content = mysqli_real_escape_string($conn, trim($_POST['post_content'])); // Sanitize input
+
+    // Insert the post into the database
+    $query = "INSERT INTO post (userID, content, timestamp) VALUES ('$userID', '$content', NOW())";
+    if (mysqli_query($conn, $query)) {
+      // Redirect or show confirmation message
+      header("Location: " . $_SERVER['PHP_SELF']); // Redirect to the same page
+      exit(); // Prevent further execution
+    } else {
+      echo "<script>alert('Error: " . mysqli_error($conn) . "');</script>";
+    }
+  } else {
+    echo "<script>alert('Please write something before posting!');</script>";
+  }
+}
+?>
+
 <!DOCTYPE html>
 <html>
 
@@ -42,32 +84,25 @@ include "connect.php";
     <div class="w3-bar w3-theme-d2 w3-left-align w3-large">
       <a class="w3-bar-item w3-button w3-hide-medium w3-hide-large w3-right w3-padding-large w3-hover-white w3-large w3-theme-d2"
         href="javascript:void(0);" onclick="openNav()"><i class="fa fa-bars"></i></a>
-      <a href="#" class="w3-bar-item w3-button w3-padding-large w3-theme-d4"><i
+      <a href="index.php" class="w3-bar-item w3-button w3-padding-large w3-theme-d4"><i
           class="fa fa-home w3-margin-right"></i>Logo</a>
       <a href="message.php" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white"
         title="Messages"><i class="fa fa-envelope"></i></a>
       <div class="w3-dropdown-hover w3-hide-small">
-        <button class="w3-button w3-padding-large" title="Notifications"><i class="fa fa-bell"></i><span
-            class="w3-badge w3-right w3-small w3-green">3</span></button>
-        <div class="w3-dropdown-content w3-card-4 w3-bar-block" style="width:300px">
-          <a href="#" class="w3-bar-item w3-button">One new friend request</a>
-          <a href="#" class="w3-bar-item w3-button">John Doe posted on your wall</a>
-          <a href="#" class="w3-bar-item w3-button">Jane likes your post</a>
-        </div>
+        <button class="w3-button w3-padding-large" title="Notifications"><i class="fa fa-bell"></i></button>
       </div>
-      <a href="#" class="w3-bar-item w3-button w3-hide-small w3-right w3-padding-large w3-hover-white"
-        title="My Account">
-        <img src="<?php echo $profilePicture ?>" class="w3-circle" style="height:23px;width:23px" alt="Avatar">
+      <a href="logout.php"
+        class="w3-bar-item w3-button w3-hide-small w3-right w3-medium w3-padding-large w3-hover-white">
+        <p>Logout</p>
       </a>
     </div>
   </div>
 
   <!-- Navbar on small screens -->
   <div id="navDemo" class="w3-bar-block w3-theme-d2 w3-hide w3-hide-large w3-hide-medium w3-large">
-    <a href="#" class="w3-bar-item w3-button w3-padding-large">Link 1</a>
-    <a href="#" class="w3-bar-item w3-button w3-padding-large">Link 2</a>
-    <a href="#" class="w3-bar-item w3-button w3-padding-large">Link 3</a>
-    <a href="#" class="w3-bar-item w3-button w3-padding-large">My Profile</a>
+    <a href="logout.php" class="w3-bar-item w3-button w3-right w3-medium">
+      <p>Logout</p>
+    </a>
   </div>
 
   <!-- Page Container -->
@@ -82,10 +117,12 @@ include "connect.php";
             <h4 class="w3-center">My Profile</h4>
             <p class="w3-center"><img src="<?php echo $profilePicture ?>" class="w3-circle"
                 style="height:106px; width:106px" alt="Avatar"></p>
+            <p class="w3-center"><?php echo $name ?></p>
             <hr>
-            <p><i class="fa fa-pencil fa-fw w3-margin-right w3-text-theme"></i> Designer, UI</p>
-            <p><i class="fa fa-home fa-fw w3-margin-right w3-text-theme"></i> London, UK</p>
-            <p><i class="fa fa-birthday-cake fa-fw w3-margin-right w3-text-theme"></i> April 1, 1988</p>
+            <p><i class="fa fa-pencil fa-fw w3-margin-right w3-text-theme"></i><?php echo $firstName ?>
+              <?php echo $lastName ?>
+            </p>
+            <p><i class="fa fa-pencil fa-fw w3-margin-right w3-text-theme"></i><?php echo $bio ?></p>
           </div>
         </div>
         <br>
@@ -126,6 +163,7 @@ include "connect.php";
         <div class="w3-card w3-round w3-white w3-hide-small">
           <div class="w3-container">
             <p>Interests</p>
+
             <p>
               <span class="w3-tag w3-small w3-theme-d5">News</span>
               <span class="w3-tag w3-small w3-theme">Games</span>
@@ -150,8 +188,13 @@ include "connect.php";
           <div class="w3-col m12">
             <div class="w3-card w3-round w3-white">
               <div class="w3-container w3-padding">
-                <p contenteditable="true" class="w3-border w3-padding"></p>
-                <button type="button" class="w3-button w3-theme"><i class="fa fa-pencil"></i>  Post</button>
+                <form action="" method="POST">
+                  <textarea name="post_content" class="w3-border w3-padding" placeholder="What's on your mind?"
+                    style="width:100%; height:100px;"></textarea>
+                  <button type="submit" name="submit_post" class="w3-button w3-theme w3-margin-top">
+                    <i class="fa fa-pencil"></i> Post
+                  </button>
+                </form>
               </div>
             </div>
           </div>
@@ -161,27 +204,27 @@ include "connect.php";
         $query = "
       SELECT post.*, user.userID, user.email, user.username, user.profilePicture
       FROM post 
-      JOIN user ON user.userID = post.userID";
+      JOIN user ON user.userID = post.userID
+      ORDER BY post.timestamp DESC";
         $result = executeQuery($query);
         while ($row = mysqli_fetch_assoc($result)) {
-          $name = $row['Username'];
-          $profilePicture = $row['Profile Picture'];
-          $content = $row['Content'];
+          $name = $row['username'];
+          $profilePicture = $row['profilePicture'];
+          $content = $row['content'];
+          $mediaURL = $row['mediaURL'];
+          $timestamp = $row['timestamp'];
           ?>
 
           <div class="w3-container w3-card w3-white w3-round w3-margin"><br>
             <img src="<?php echo $profilePicture ?>" alt="Avatar" class="w3-left w3-circle w3-margin-right"
               style="width:60px">
-            <span class="w3-right w3-opacity">1 min</span>
+            <span class="w3-right w3-opacity"><?php echo $timestamp ?></span>
             <h4><?php echo $name ?></h4><br>
             <hr class="w3-clear">
             <p><?php echo $content ?></p>
             <div class="w3-row-padding" style="margin:0 -16px">
               <div class="w3-half">
-                <img src="/w3images/lights.jpg" style="width:100%" alt="Northern Lights" class="w3-margin-bottom">
-              </div>
-              <div class="w3-half">
-                <img src="/w3images/nature.jpg" style="width:100%" alt="Nature" class="w3-margin-bottom">
+                <img src="<?php echo $mediaURL ?>" style="width:100%" alt="Post Image" class="w3-margin-bottom">
               </div>
             </div>
             <button type="button" class="w3-button w3-theme-d1 w3-margin-bottom"><i class="fa fa-thumbs-up"></i>
@@ -193,45 +236,10 @@ include "connect.php";
 
         <!-- End Middle Column -->
       </div>
-
-      <!-- Right Column -->
-      <div class="w3-col m2">
-        <div class="w3-card w3-round w3-white w3-center">
-
-        </div>
-        <br>
-
-        <div class="w3-card w3-round w3-white w3-center">
-          <div class="w3-container">
-            <p>Friend Request</p>
-            <img src="<?php echo $profilePicture ?>" alt="Avatar" style="width:50%"><br>
-            <span>Jane Doe</span>
-            <div class="w3-row w3-opacity">
-              <div class="w3-half">
-                <button class="w3-button w3-block w3-green w3-section" title="Accept"><i
-                    class="fa fa-check"></i></button>
-              </div>
-              <div class="w3-half">
-                <button class="w3-button w3-block w3-red w3-section" title="Decline"><i
-                    class="fa fa-remove"></i></button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <br>
-
-      </div>
-      <br>
-
+      <!-- End Grid -->
     </div>
 
-    <!-- End Right Column -->
-  </div>
-
-  <!-- End Grid -->
-  </div>
-
-  <!-- End Page Container -->
+    <!-- End Page Container -->
   </div>
   <br>
 

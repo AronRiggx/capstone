@@ -31,9 +31,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["submit"])) {
         $result_username = mysqli_stmt_get_result($stmt_username);
 
         if (mysqli_num_rows($result_username) > 0) {
-            $error = "Wrong password."; 
+            $error = "Wrong password.";
         } else {
-            $error = "No username with this account was found."; 
+            $error = "No username with this account was found.";
         }
     }
 }
@@ -48,9 +48,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["submit"])) {
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -65,7 +63,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["submit"])) {
             <div class="login-container p-4">
                 <h2 class="text-center pb-3" style="font-size: 30px;">Welcome to FeedEat</h2>
                 <form action="login.php" method="POST">
-                <?php if (!empty($error)): ?>
+                    <?php if (!empty($error)): ?>
                         <div class="error-message text-danger"><?php echo $error; ?></div>
                     <?php endif; ?>
                     <div class="form-group">
@@ -95,8 +93,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["submit"])) {
 <style>
     body {
         font-family: 'Roboto', sans-serif;
-        background: 
-            linear-gradient(rgba(255, 218, 67, 0.8), rgba(255, 218, 67, 0.8)), 
+        background:
+            linear-gradient(rgba(255, 218, 67, 0.8), rgba(255, 218, 67, 0.8)),
             url('https://i.ibb.co/fdTVfDX/food-bg.png') no-repeat center center fixed;
         background-size: cover;
         margin: 0;
@@ -105,7 +103,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["submit"])) {
     .login-wrapper {
         max-width: 800px;
         width: 100%;
-        background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white */
+        background-color: rgba(255, 255, 255, 0.9);
+        /* Semi-transparent white */
         border-radius: 10px;
         overflow: hidden;
     }
