@@ -131,12 +131,12 @@
                 </div>
                 <div class="offcanvas-body">
                     <ul class="navbar-nav ms-auto">
-                        <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">AI Chatbot</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Messages</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Create your recipe</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Profile</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Logout</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.php">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="chatbot.php">AI Chatbot</a></li>
+                        <li class="nav-item"><a class="nav-link" href="message.php">Messages</a></li>
+                        <li class="nav-item"><a class="nav-link" href="create.php">Create your recipe</a></li>
+                        <li class="nav-item"><a class="nav-link" href="profile.php">Profile</a></li>
+                        <li class="nav-item"><a class="nav-link" href="logout.php">Logout</a></li>
                     </ul>
                 </div>
             </div>
