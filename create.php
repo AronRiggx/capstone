@@ -1,3 +1,34 @@
+<?php
+session_start();
+
+// Redirect to login if the user is not logged in
+if (!isset($_SESSION['loggedin']) || !isset($_SESSION['userid'])) {
+    header("Location: login.php");
+    exit();
+}
+include_once "connect.php";
+
+// Fetch user data
+$pg = isset($_GET['id']) ? $_GET['id'] : null;
+$query = "SELECT username, profilePicture, bio, firstName, lastName FROM user WHERE userID = '$pg'";
+$result = mysqli_query($conn, $query);
+
+if ($result && mysqli_num_rows($result) > 0) {
+    $userData = mysqli_fetch_assoc($result);
+    $name = $userData['username'];
+    $profilePicture = $userData['profilePicture'];
+    $bio = $userData['bio'];
+    $firstName = $userData['firstName'];
+    $lastName = $userData['lastName'];
+} else {
+    $profilePicture = 'default-avatar.png';
+    $bio = 'No bio available';
+    $name = 'Unknown';
+    $firstName = 'Unknown';
+    $lastName = 'Unknown';
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -113,7 +144,7 @@
 <body>
     <nav class="navbar body-tertiary px-2">
         <div class="container-fluid">
-            <a class="navbar-brand" href="index.php">
+            <a class="navbar-brand" href="index.php?id=<?php echo $_SESSION['userid'] ?>">
                 <img src="https://i.ibb.co/0tWMMf8/download.png" alt="Logo" width="70" height="60"
                     class="d-inline-block align-items-center px-2">FeedEat</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar"
@@ -123,13 +154,14 @@
             <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar"
                 aria-labelledby="offcanvasNavbarLabel">
                 <div class="offcanvas-header">
-                        <img src="https://i.ibb.co/0tWMMf8/download.png" alt="Logo" wwidth="70" height="60"
-                            class="d-inline-block px-2">
+                    <img src="https://i.ibb.co/0tWMMf8/download.png" alt="Logo" wwidth="70" height="60"
+                        class="d-inline-block px-2">
                     <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
                 </div>
                 <div class="offcanvas-body">
                     <ul class="navbar-nav ms-auto">
-                        <li class="nav-item"><a class="nav-link" href="index.php?id=<?php echo $userID ?>">Home</a></li>
+                        <li class="nav-item"><a class="nav-link"
+                                href="index.php?id=<?php echo $_SESSION['userid'] ?>">Home</a></li>
                         <li class="nav-item"><a class="nav-link" href="logout.php">Logout</a></li>
                     </ul>
                 </div>

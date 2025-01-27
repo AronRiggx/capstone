@@ -6,7 +6,7 @@ if (!isset($_SESSION['loggedin']) || !isset($_SESSION['userid'])) {
   header("Location: login.php");
   exit();
 }
-include "connect.php";
+include_once "connect.php";
 
 // Fetch user data
 $pg = isset($_GET['id']) ? $_GET['id'] : null;
@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_post'])) {
     $query = "INSERT INTO post (userID, content, timestamp) VALUES ('$userID', '$content', NOW())";
 
     if (mysqli_query($conn, $query)) {
-      header("Location: " . $_SERVER['PHP_SELF']);
+      header("Location: " . $_SERVER['PHP_SELF'] . "?id=" . urlencode($pg));
       exit();
     } else {
       echo "<script>alert('Error: " . mysqli_error($conn) . "');</script>";
@@ -134,7 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_post'])) {
   <!-- Navbar -->
   <nav class="navbar body-tertiary px-2">
     <div class="container-fluid">
-      <a class="navbar-brand" href="index.php">
+      <a class="navbar-brand" href="index.php?id=<?php echo $pg ?>">
         <img src="https://i.ibb.co/0tWMMf8/download.png" alt="Logo" width="70" height="60"
           class="d-inline-block align-items-center px-2">FeedEat</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar"

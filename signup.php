@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-include "connect.php";
+include_once "connect.php";
 
 if (isset($_POST["submit"])) {
 

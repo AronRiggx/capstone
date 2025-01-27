@@ -3,7 +3,7 @@ session_start();
 session_destroy();
 session_start();
 
-include "connect.php";
+include_once "connect.php";
 
 $error = ""; // Initialize error message
 

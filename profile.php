@@ -1,3 +1,67 @@
+<?php
+session_start();
+
+// Redirect to login if the user is not logged in
+if (!isset($_SESSION['loggedin']) || !isset($_SESSION['userid'])) {
+    header("Location: login.php");
+    exit();
+}
+include_once "connect.php";
+
+// Fetch user data
+$pg = isset($_GET['id']) ? $_GET['id'] : null;
+$query = "SELECT username, profilePicture, bio, firstName, lastName FROM user WHERE userID = '$pg'";
+$result = mysqli_query($conn, $query);
+
+// Update Profile Picture
+if (isset($_POST['updatePicture'])) {
+    if (isset($_FILES['profilePic']) && $_FILES['profilePic']['error'] === 0) {
+        $targetDir = "uploads/";
+        $fileName = basename($_FILES['profilePic']['name']);
+        $targetFilePath = $targetDir . $fileName;
+
+        if (move_uploaded_file($_FILES['profilePic']['tmp_name'], $targetFilePath)) {
+            $query = "UPDATE user SET profilePicture = '$fileName' WHERE userID = {$_SESSION['userid']}";
+            mysqli_query($conn, $query);
+            echo "<script>alert('Profile picture updated successfully!');</script>";
+        } else {
+            echo "<script>alert('Error uploading the file.');</script>";
+        }
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    // Update Personal Information
+    if (isset($_POST['updatePersonalInfo'])) {
+        $firstName = mysqli_real_escape_string($conn, $_POST['firstName']);
+        $lastName = mysqli_real_escape_string($conn, $_POST['lastName']);
+        $email = mysqli_real_escape_string($conn, $_POST['email']);
+
+        $query = "UPDATE user SET firstName = '$firstName', lastName = '$lastName', email = '$email' WHERE userID = {$_SESSION['userid']}";
+        if (mysqli_query($conn, $query)) {
+            echo "<script>alert('Personal information updated successfully!');</script>";
+        } else {
+            echo "<script>alert('Error updating personal information.');</script>";
+        }
+    }
+}
+
+if (isset($_POST['updatePassword'])) {
+    $password = mysqli_real_escape_string($conn, $_POST['password']);
+    $confirmPassword = mysqli_real_escape_string($conn, $_POST['confirmPassword']);
+
+    if ($password === $confirmPassword) {
+        $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+        $query = "UPDATE user SET password = '$hashedPassword' WHERE userID = {$_SESSION['userid']}";
+        mysqli_query($conn, $query);
+        echo "<script>alert('Password updated successfully!');</script>";
+    } else {
+        echo "<script>alert('Passwords do not match.');</script>";
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -119,7 +183,7 @@
 <body>
     <nav class="navbar body-tertiary px-2">
         <div class="container-fluid">
-            <a class="navbar-brand" href="index.php">
+            <a class="navbar-brand" href="index.php?id=<?php echo $_SESSION['userid'] ?>">
                 <img src="https://i.ibb.co/0tWMMf8/download.png" alt="Logo" width="70" height="60"
                     class="d-inline-block align-items-center px-2">FeedEat</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar"
@@ -135,7 +199,8 @@
                 </div>
                 <div class="offcanvas-body">
                     <ul class="navbar-nav ms-auto">
-                        <li class="nav-item"><a class="nav-link" href="index.php?id=<?php echo $userID ?>">Home</a></li>
+                        <li class="nav-item"><a class="nav-link"
+                                href="index.php?id=<?php echo $_SESSION['userid'] ?>">Home</a></li>
                         <li class="nav-item"><a class="nav-link" href="logout.php">Logout</a></li>
                     </ul>
                 </div>
@@ -146,7 +211,7 @@
         <div class="row">
             <!-- Sidebar -->
             <nav class="col-12 col-md-3 col-lg-2 sidebar d-flex flex-column align-items-center py-4">
-                <div class="profile-picture mb-3"></div>
+                <div class="profile-picture mb-3"><img src="uploads/1e6.jpg"></div>
                 <button id="profile-button" class="btn btn-secondary w-75 mb-2">Profile</button>
                 <button id="create-button" class="btn btn-secondary w-75 mb-2">Create</button>
 
@@ -159,51 +224,55 @@
 
                 <div class="card p-4 shadow-sm mb-4">
                     <h5 class="mb-3">Change Profile Picture</h5>
-                    <form>
+                    <form method="POST" action="" enctype="multipart/form-data">
                         <div class="mb-3">
                             <label for="profilePic" class="form-label">Upload New Picture</label>
-                            <input type="file" id="profilePic" class="form-control" />
+                            <input type="file" name="profilePic" id="profilePic" class="form-control" />
                         </div>
-                        <button type="submit" class="btn btn-primary">Update Picture</button>
+                        <button type="submit" name="updatePicture" class="btn btn-primary">Update Picture</button>
                     </form>
                 </div>
 
                 <div class="card p-4 shadow-sm mb-4">
                     <h5 class="mb-3">Personal Information</h5>
-                    <form>
+                    <form method="POST" action="">
                         <div class="mb-3">
-                            <label for="fullName" class="form-label">Full Name</label>
-                            <input type="text" id="fullName" class="form-control" placeholder="Enter your full name" />
+                            <label for="firstName" class="form-label">First Name</label>
+                            <input type="text" name="firstName" id="firstName" class="form-control"
+                                placeholder="Enter your first name" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="lastName" class="form-label">Last Name</label>
+                            <input type="text" name="lastName" id="lastName" class="form-control"
+                                placeholder="Enter your last name" />
                         </div>
                         <div class="mb-3">
                             <label for="email" class="form-label">Email Address</label>
-                            <input type="email" id="email" class="form-control" placeholder="Enter your email" />
+                            <input type="email" name="email" id="email" class="form-control"
+                                placeholder="Enter your email" />
                         </div>
-                        <div class="mb-3">
-                            <label for="phone" class="form-label">Phone Number</label>
-                            <input type="tel" id="phone" class="form-control" placeholder="Enter your phone number" />
-                        </div>
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <button type="submit" name="updatePersonalInfo" class="btn btn-primary">Save Changes</button>
                     </form>
                 </div>
 
 
                 <div class="card p-4 shadow-sm">
                     <h5 class="mb-3">Account Settings</h5>
-                    <form>
+                    <form method="POST" action="">
                         <div class="mb-3">
                             <label for="password" class="form-label">New Password</label>
-                            <input type="password" id="password" class="form-control"
+                            <input type="password" name="password" id="password" class="form-control"
                                 placeholder="Enter a new password" />
                         </div>
                         <div class="mb-3">
                             <label for="confirmPassword" class="form-label">Confirm Password</label>
-                            <input type="password" id="confirmPassword" class="form-control"
+                            <input type="password" name="confirmPassword" id="confirmPassword" class="form-control"
                                 placeholder="Confirm your new password" />
                         </div>
-                        <button type="submit" class="btn btn-primary">Update Password</button>
+                        <button type="submit" name="updatePassword" class="btn btn-primary">Update Password</button>
                     </form>
                 </div>
+
                 <h3 class="my-3">Your Recipes</h3>
                 <div class="recipe-list">
                     <div class="recipe-card">
@@ -223,7 +292,7 @@
         </div>
     </div>
 
-    
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
     <script>

@@ -5,7 +5,7 @@ if (!isset($_SESSION['loggedin']) || !isset($_SESSION['userid'])) {
   header("Location: login.php");
   exit();
 }
-include "connect.php";
+include_once "connect.php";
 
 $userID = $_SESSION['userid']; 
 $pg = isset($_GET['id']) ? $_GET['id'] : null;
