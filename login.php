@@ -21,7 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["submit"])) {
         $row = mysqli_fetch_assoc($result);
         $_SESSION["loggedin"] = true;
         $_SESSION["userid"] = $row['UserID']; // Store the numerical user ID in the session
-        header("location: index.php");
+        header("location: index.php?id=" . $row['UserID']);
     } else {
         // Check if the username exists in the database
         $query_username = "SELECT * FROM user WHERE Username = ?";

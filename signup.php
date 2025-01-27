@@ -8,12 +8,14 @@ if (isset($_POST["submit"])) {
   $uName = $_POST["username"];
   $email = $_POST["email"];
   $pass = $_POST["password"];
+  $firstName = $_POST["firstName"];
+  $lastName = $_POST["lastName"];
   $conF = $_POST["confirm_password"];
 
 
   // Insert into riceque_info table
-  $insertquery = "INSERT INTO user (Username, Email, Password) 
-  VALUES ('$uName',  '$email', '$pass')";
+  $insertquery = "INSERT INTO user (Username, Email, Password, firstName, lastName) 
+  VALUES ('$uName',  '$email', '$pass', '$firstName', '$lastName')";
   // Execute both queries
   $results = executeQuery($insertquery);
   

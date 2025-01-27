@@ -1,46 +1,43 @@
 <?php
 session_start();
 
+// Redirect to login if the user is not logged in
 if (!isset($_SESSION['loggedin']) || !isset($_SESSION['userid'])) {
   header("Location: login.php");
   exit();
 }
 include "connect.php";
 
-$userID = $_SESSION['userid']; // Get the current user's ID
-$query = "SELECT username, profilePicture, bio, firstName, lastName FROM user WHERE userID = '$userID'";
+// Fetch user data
+$pg = isset($_GET['id']) ? $_GET['id'] : null;
+$query = "SELECT username, profilePicture, bio, firstName, lastName FROM user WHERE userID = '$pg'";
 $result = mysqli_query($conn, $query);
 
 if ($result && mysqli_num_rows($result) > 0) {
   $userData = mysqli_fetch_assoc($result);
   $name = $userData['username'];
-  $profilePicture = $userData['profilePicture']; // Get profile picture URL
-  $bio = $userData['bio']; // Get user bio
+  $profilePicture = $userData['profilePicture'];
+  $bio = $userData['bio'];
   $firstName = $userData['firstName'];
   $lastName = $userData['lastName'];
-
 } else {
-  $profilePicture = 'default-avatar.png'; // Fallback profile picture
-  $bio = 'No bio available'; // Fallback bio\
-  $name = '???';
-  $firstName = '???';
-  $lastName = '???';
+  $profilePicture = 'default-avatar.png';
+  $bio = 'No bio available';
+  $name = 'Unknown';
+  $firstName = 'Unknown';
+  $lastName = 'Unknown';
 }
-?>
 
-<?php
+// Handle post submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_post'])) {
-  // Validate the session and user input
-  if (isset($_SESSION['userid']) && !empty(trim($_POST['post_content']))) {
-    $userID = $_SESSION['userid']; // Get the current user's ID
-    $content = mysqli_real_escape_string($conn, trim($_POST['post_content'])); // Sanitize input
-
-    // Insert the post into the database
+  if (!empty(trim($_POST['post_content']))) {
+    $content = mysqli_real_escape_string($conn, trim($_POST['post_content']));
+    $userID = $_SESSION['userid'];
     $query = "INSERT INTO post (userID, content, timestamp) VALUES ('$userID', '$content', NOW())";
+
     if (mysqli_query($conn, $query)) {
-      // Redirect or show confirmation message
-      header("Location: " . $_SERVER['PHP_SELF']); // Redirect to the same page
-      exit(); // Prevent further execution
+      header("Location: " . $_SERVER['PHP_SELF']);
+      exit();
     } else {
       echo "<script>alert('Error: " . mysqli_error($conn) . "');</script>";
     }
@@ -51,308 +48,185 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_post'])) {
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-  <title>FeedEat</title>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-  <link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-blue-grey.css">
-  <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Open+Sans'>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FeedEat</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
-    /*
-           .navbar {
-            background: rgba(255, 166, 0, 0.9);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        }
-
-        .navbar a.navbar-brand {
-            color: #ffffff;
-            font-weight: bold;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-        }
-
-        .navbar .navbar-toggler {
-            border: none;
-            color: #ffffff;
-        }
-
-        .navbar .navbar-toggler-icon {
-            background-image: url('data:image/svg+xml;charset=utf8,%3Csvg xmlns%3D%22http://www.w3.org/2000/svg%22 fill%3D%22white%22 viewBox%3D%220 0 30 30%22%3E%3Cpath stroke%3D%22rgba%280, 0, 0, 0.5%29%22 stroke-width%3D%222%22 stroke-linecap%3D%22round%22 stroke-miterlimit%3D%2210%22 d%3D%22M4 7h22M4 15h22M4 23h22%22/%3E%3C/svg%3E');
-        }
-
-        .navbar .nav-link {
-            color: #1a1a1a;
-            font-weight: 500;
-            padding: 10px 15px;
-            transition: all 0.3s;
-        }
-
-        .navbar .nav-link:hover {
-            color: rgba(255, 218, 67, 0.9);
-
-            text-decoration: underline;
-        }
-
-        .offcanvas {
-            background: rgba(255, 248, 220, 1);
-
-            color: #3e3e3e;
-            box-shadow: -4px 0 10px rgba(0, 0, 0, 0.2);
-        }
-
-        .offcanvas .offcanvas-title {
-            font-weight: bold;
-            color: rgba(255, 166, 0, 0.9);
-        }
-
-        .offcanvas .btn-close {
-            background-color: rgba(255, 204, 92, 0.8);
-            border-radius: 50%;
-            color: white;
-        }
-    */
     body {
       font-family: 'Roboto', sans-serif;
-      background:
-        linear-gradient(rgba(255, 218, 67, 0.8), rgba(255, 218, 67, 0.8)),
+      background: linear-gradient(rgba(255, 218, 67, 0.8), rgba(255, 218, 67, 0.8)),
         url('https://i.ibb.co/fdTVfDX/food-bg.png') no-repeat center center fixed;
       background-size: cover;
-      margin: 0;
     }
 
-    .w3-container {
-      border-radius: 10px;
+    .navbar {
+      background: rgba(255, 166, 0, 0.9);
+      /* Golden yellow accent */
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .navbar a.navbar-brand {
+      color: #ffffff;
+      font-weight: bold;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    }
+
+    .navbar .navbar-toggler {
+      border: none;
+      color: #ffffff;
+    }
+
+    .navbar .navbar-toggler-icon {
+      background-image: url('data:image/svg+xml;charset=utf8,%3Csvg xmlns%3D%22http://www.w3.org/2000/svg%22 fill%3D%22white%22 viewBox%3D%220 0 30 30%22%3E%3Cpath stroke%3D%22rgba%280, 0, 0, 0.5%29%22 stroke-width%3D%222%22 stroke-linecap%3D%22round%22 stroke-miterlimit%3D%2210%22 d%3D%22M4 7h22M4 15h22M4 23h22%22/%3E%3C/svg%3E');
+    }
+
+    .navbar .nav-link {
+      color: #1a1a1a;
+      font-weight: 500;
+      padding: 10px 15px;
+      transition: all 0.3s;
+    }
+
+    .navbar .nav-link:hover {
+      color: rgba(255, 218, 67, 0.9);
+      /* Hover effect with lighter accent */
+      text-decoration: underline;
+    }
+
+    .offcanvas {
+      background: rgba(255, 248, 220, 1);
+      /* Light theme for offcanvas menu */
+      color: #3e3e3e;
+      box-shadow: -4px 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .offcanvas .offcanvas-title {
+      font-weight: bold;
+      color: rgba(255, 166, 0, 0.9);
+    }
+
+    .offcanvas .btn-close {
+      background-color: rgba(255, 204, 92, 0.8);
+      border-radius: 50%;
+      color: white;
+    }
+
+
+    .profile-picture {
+      height: 120px;
+      width: 120px;
+      object-fit: cover;
+    }
+
+    .card {
+      margin-bottom: 20px;
+      background-color: rgba(255, 248, 220, 1)
     }
   </style>
 </head>
 
-<body class="w3-theme-l5">
-
-<!--
-    <nav class="navbar body-tertiary px-2">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="index.php">
-                <img src="https://i.ibb.co/0tWMMf8/download.png" alt="Logo" width="70" height="60"
-                    class="d-inline-block align-items-center px-2">FeedEat</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar"
-                aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar"
-                aria-labelledby="offcanvasNavbarLabel">
-                <div class="offcanvas-header">
-                    <a class="offcanvas-title" id="offcanvasNavbarLabel" href="php">
-                        <img src="https://i.ibb.co/0tWMMf8/download.png" alt="Logo" wwidth="70" height="60"
-                            class="d-inline-block px-2"></a>
-                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
-                </div>
-                <div class="offcanvas-body">
-                    <ul class="navbar-nav ms-auto">
-                        <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">AI Chatbot</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Messages</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Create your recipe</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Profile</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Logout</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </nav>
-    -->
-
+<body>
   <!-- Navbar -->
-  <div class="w3-top">
-    <div class="w3-bar w3-theme-d2 w3-left-align w3-large">
-      <a class="w3-bar-item w3-button w3-hide-medium w3-hide-large w3-right w3-padding-large w3-hover-white w3-large w3-theme-d2"
-        href="javascript:void(0);" onclick="openNav()"><i class="fa fa-bars"></i></a>
-      <a href="index.php" class="w3-bar-item w3-button w3-padding-large w3-theme-d4"><i
-          class="fa fa-home w3-margin-right"></i>Logo</a>
-      <a href="message.php" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white"
-        title="Messages"><i class="fa fa-envelope"></i></a>
-      <div class="w3-dropdown-hover w3-hide-small">
-        <button class="w3-button w3-padding-large" title="Notifications"><i class="fa fa-bell"></i></button>
+  <nav class="navbar body-tertiary px-2">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="index.php">
+        <img src="https://i.ibb.co/0tWMMf8/download.png" alt="Logo" width="70" height="60"
+          class="d-inline-block align-items-center px-2">FeedEat</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar"
+        aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+        <div class="offcanvas-header">
+          <img src="https://i.ibb.co/0tWMMf8/download.png" alt="Logo" wwidth="70" height="60"
+            class="d-inline-block px-2">
+          <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item"><a class="nav-link" href="profile.php">Profile</a></li>
+            <li class="nav-item"><a class="nav-link" href="create.php">Create your recipe</a></li>
+            <li class="nav-item"><a class="nav-link" href="logout.php">Logout</a></li>
+          </ul>
+        </div>
       </div>
-      <a href="logout.php"
-        class="w3-bar-item w3-button w3-hide-small w3-right w3-medium w3-padding-large w3-hover-white">
-        <p>Logout</p>
-      </a>
     </div>
-  </div>
+  </nav>
 
-  <!-- Navbar on small screens -->
-  <div id="navDemo" class="w3-bar-block w3-theme-d2 w3-hide w3-hide-large w3-hide-medium w3-large">
-    <a href="logout.php" class="w3-bar-item w3-button w3-right w3-medium">
-      <p>Logout</p>
-    </a>
-  </div>
-
-  <!-- Page Container -->
-  <div class="w3-container w3-content" style="max-width:1400px;margin-top:80px">
-    <!-- The Grid -->
-    <div class="w3-row">
-      <!-- Left Column -->
-      <div class="w3-col m3">
-        <!-- Profile -->
-        <div class="w3-card w3-round w3-white">
-          <div class="w3-container">
-            <h4 class="w3-center">My Profile</h4>
-            <p class="w3-center"><img src="<?php echo $profilePicture ?>" class="w3-circle"
-                style="height:106px; width:106px" alt="Avatar"></p>
-            <p class="w3-center"><?php echo $name ?></p>
-            <hr>
-            <p><i class="fa fa-pencil fa-fw w3-margin-right w3-text-theme"></i><?php echo $firstName ?>
-              <?php echo $lastName ?>
-            </p>
-            <p><i class="fa fa-pencil fa-fw w3-margin-right w3-text-theme"></i><?php echo $bio ?></p>
+  <div class="container mt-5">
+    <div class="row">
+      <!-- Profile Section -->
+      <div class="col-md-4">
+        <div class="card text-center">
+          <div class="card-body">
+            <img src="<?php echo $profilePicture; ?>" alt="Profile" class="rounded-circle profile-picture">
+            <h4 class="mt-3"><?php echo $firstName . ' ' . $lastName;
+            $name; ?></h4>
+            <h6 class="mt-3"><?php echo '@'. $name; ?></h6>
+            <p class="text-muted">Bio: <?php echo $bio; ?></p>
           </div>
         </div>
-        <br>
-
-        <!-- Accordion -->
-        <div class="w3-card w3-round">
-          <div class="w3-white">
-            <button onclick="myFunction('Demo3')" class="w3-button w3-block w3-theme-l1 w3-left-align"><i
-                class="fa fa-users fa-fw w3-margin-right"></i>My Recipes</button>
-            <div id="Demo3" class="w3-hide w3-container">
-              <div class="w3-row-padding">
-                <br>
-                <div class="w3-half">
-                  <img src="/w3images/lights.jpg" style="width:100%" class="w3-margin-bottom">
-                </div>
-                <div class="w3-half">
-                  <img src="/w3images/nature.jpg" style="width:100%" class="w3-margin-bottom">
-                </div>
-                <div class="w3-half">
-                  <img src="/w3images/mountains.jpg" style="width:100%" class="w3-margin-bottom">
-                </div>
-                <div class="w3-half">
-                  <img src="/w3images/forest.jpg" style="width:100%" class="w3-margin-bottom">
-                </div>
-                <div class="w3-half">
-                  <img src="/w3images/nature.jpg" style="width:100%" class="w3-margin-bottom">
-                </div>
-                <div class="w3-half">
-                  <img src="/w3images/snow.jpg" style="width:100%" class="w3-margin-bottom">
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <br>
-
-        <!-- Interests -->
-        <div class="w3-card w3-round w3-white w3-hide-small">
-          <div class="w3-container">
-            <p>Interests</p>
-
-            <p>
-              <span class="w3-tag w3-small w3-theme-d5">News</span>
-              <span class="w3-tag w3-small w3-theme">Games</span>
-              <span class="w3-tag w3-small w3-theme-l1">Friends</span>
-              <span class="w3-tag w3-small w3-theme-l2">Food</span>
-              <span class="w3-tag w3-small w3-theme-l3">Design</span>
-              <span class="w3-tag w3-small w3-theme-l4">Art</span>
-              <span class="w3-tag w3-small w3-theme-l5">Photos</span>
-            </p>
-          </div>
-        </div>
-        <br>
-
-
-        <!-- End Left Column -->
       </div>
-
-      <!-- Middle Column -->
-      <div class="w3-col m7">
-
-        <div class="w3-row-padding">
-          <div class="w3-col m12">
-            <div class="w3-card w3-round w3-white">
-              <div class="w3-container w3-padding">
-                <form action="" method="POST">
-                  <textarea name="post_content" class="w3-border w3-padding" placeholder="What's on your mind?"
-                    style="width:100%; height:100px;"></textarea>
-                  <button type="submit" name="submit_post" class="w3-button w3-theme w3-margin-top">
-                    <i class="fa fa-pencil"></i> Post
-                  </button>
-                </form>
-              </div>
-            </div>
+      
+      <!-- Post Section -->
+      <div class="col-md-8">
+        <div class="card">
+          <div class="card-body">
+            <form action="" method="POST">
+              <textarea name="post_content" class="form-control mb-3" placeholder="What's on your mind?"
+                rows="4"></textarea>
+              <button type="submit" name="submit_post" class="btn btn-warning w-100">Post</button>
+            </form>
           </div>
         </div>
 
+        <!-- Display Posts -->
         <?php
-        $query = "
-      SELECT post.*, user.userID, user.email, user.username, user.profilePicture
-      FROM post 
-      JOIN user ON user.userID = post.userID
-      ORDER BY post.timestamp DESC";
-        $result = executeQuery($query);
+        $query = "SELECT post.*, user.username, user.profilePicture FROM post JOIN user ON user.userID = post.userID ORDER BY post.timestamp DESC";
+        $result = mysqli_query($conn, $query);
+
         while ($row = mysqli_fetch_assoc($result)) {
           $name = $row['username'];
-          $profilePicture = $row['profilePicture'];
+          $profilePicture = $row['profilePicture'] ?: 'default-avatar.png';
           $content = $row['content'];
           $mediaURL = $row['mediaURL'];
           $timestamp = $row['timestamp'];
           ?>
-
-          <div class="w3-container w3-card w3-white w3-round w3-margin"><br>
-            <img src="<?php echo $profilePicture ?>" alt="Avatar" class="w3-left w3-circle w3-margin-right"
-              style="width:60px">
-            <span class="w3-right w3-opacity"><?php echo $timestamp ?></span>
-            <h4><?php echo $name ?></h4><br>
-            <hr class="w3-clear">
-            <p><?php echo $content ?></p>
-            <div class="w3-row-padding" style="margin:0 -16px">
-              <div class="w3-half">
-                <img src="<?php echo $mediaURL ?>" style="width:100%" alt="Post Image" class="w3-margin-bottom">
-              </div>
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex align-items-center mb-3">
+                <img src="<?php echo $profilePicture; ?>" alt="Avatar" class="rounded-circle" width="50" height="50">
+                <div class="ms-3">
+                  <h6 class="mb-0"><?php echo '@'. $name; ?></h6>
+                  <small class="text-muted"><?php echo $timestamp; ?></small>
+                </div>
+              </div class="pb-2">
+              <p><?php echo $content; ?></p>
+              <?php if ($mediaURL) { ?>
+                <img src="<?php echo $mediaURL; ?>" class="img-fluid rounded" alt="Post Media">
+                <?php } ?>
+                <div class="pt-2">
+                  <button type="button" class="post-button btn btn-primary"><i class="fa-solid fa-heart"></i></button>
+                  <button type="button" class="post-button btn btn-primary"><i class="fa-solid fa-comment"></i>
+                    Comment</button>
+                </div>
+              
             </div>
-            <button type="button" class="w3-button w3-theme-d1 w3-margin-bottom"><i class="fa fa-thumbs-up"></i>
-              Like</button>
-            <button type="button" class="w3-button w3-theme-d2 w3-margin-bottom"><i class="fa fa-comment"></i>
-              Comment</button>
           </div>
         <?php } ?>
-
-        <!-- End Middle Column -->
       </div>
-      <!-- End Grid -->
     </div>
-
-    <!-- End Page Container -->
   </div>
-  <br>
 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // Accordion
-    function myFunction(id) {
-      var x = document.getElementById(id);
-      if (x.className.indexOf("w3-show") == -1) {
-        x.className += " w3-show";
-        x.previousElementSibling.className += " w3-theme-d1";
-      } else {
-        x.className = x.className.replace("w3-show", "");
-        x.previousElementSibling.className =
-          x.previousElementSibling.className.replace(" w3-theme-d1", "");
-      }
-    }
-
-    // Used to toggle the menu on smaller screens when clicking on the menu button
-    function openNav() {
-      var x = document.getElementById("navDemo");
-      if (x.className.indexOf("w3-show") == -1) {
-        x.className += " w3-show";
-      } else {
-        x.className = x.className.replace(" w3-show", "");
-      }
-    }
+    (function () { if (!window.chatbase || window.chatbase("getState") !== "initialized") { window.chatbase = (...arguments) => { if (!window.chatbase.q) { window.chatbase.q = [] } window.chatbase.q.push(arguments) }; window.chatbase = new Proxy(window.chatbase, { get(target, prop) { if (prop === "q") { return target.q } return (...args) => target(prop, ...args) } }) } const onLoad = function () { const script = document.createElement("script"); script.src = "https://www.chatbase.co/embed.min.js"; script.id = "TMlveiBS_dnCMEXhGGvh5"; script.domain = "www.chatbase.co"; document.body.appendChild(script) }; if (document.readyState === "complete") { onLoad() } else { window.addEventListener("load", onLoad) } })();
   </script>
-
 </body>
 
 </html>

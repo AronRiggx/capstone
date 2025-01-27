@@ -15,7 +15,6 @@
                 url('https://i.ibb.co/fdTVfDX/food-bg.png') no-repeat center center fixed;
             background-size: cover;
             margin: 0;
-        
         }
 
         .navbar {
@@ -72,7 +71,7 @@
 
         .sidebar {
             background-color: rgba(255, 248, 220, 1);
-            height: 100vh;
+
         }
 
         .profile-picture {
@@ -124,18 +123,13 @@
             <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar"
                 aria-labelledby="offcanvasNavbarLabel">
                 <div class="offcanvas-header">
-                    <a class="offcanvas-title" id="offcanvasNavbarLabel" href="php">
                         <img src="https://i.ibb.co/0tWMMf8/download.png" alt="Logo" wwidth="70" height="60"
-                            class="d-inline-block px-2"></a>
+                            class="d-inline-block px-2">
                     <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
                 </div>
                 <div class="offcanvas-body">
                     <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="index.php">Home</a></li>
-                        <li class="nav-item"><a class="nav-link" href="chatbot.php">AI Chatbot</a></li>
-                        <li class="nav-item"><a class="nav-link" href="message.php">Messages</a></li>
-                        <li class="nav-item"><a class="nav-link" href="create.php">Create your recipe</a></li>
-                        <li class="nav-item"><a class="nav-link" href="profile.php">Profile</a></li>
+                        <li class="nav-item"><a class="nav-link" href="index.php?id=<?php echo $userID ?>">Home</a></li>
                         <li class="nav-item"><a class="nav-link" href="logout.php">Logout</a></li>
                     </ul>
                 </div>
@@ -147,9 +141,8 @@
             <!-- Sidebar -->
             <nav class="col-12 col-md-3 col-lg-2 sidebar d-flex flex-column align-items-center py-4">
                 <div class="profile-picture mb-3"></div>
-                <h3>PROFILE</h3>
+                <button id="profile-button" class="btn btn-secondary w-75 mb-2">Profile</button>
                 <button id="create-button" class="btn btn-secondary w-75 mb-2">Create</button>
-                <button id="your-recipes-button" class="btn btn-secondary w-75">Your Recipes</button>
             </nav>
 
             <!-- Main Content -->
@@ -188,8 +181,8 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.getElementById("your-recipes-button").addEventListener("click", () => {
-            window.location.href = "recipe.php";
+        document.getElementById("profile-button").addEventListener("click", () => {
+            window.location.href = "profile.php";
         });
 
         document.getElementById("create-button").addEventListener("click", () => {

@@ -1,3 +1,33 @@
+<?php
+session_start();
+
+if (!isset($_SESSION['loggedin']) || !isset($_SESSION['userid'])) {
+  header("Location: login.php");
+  exit();
+}
+include "connect.php";
+
+$userID = $_SESSION['userid']; 
+$pg = isset($_GET['id']) ? $_GET['id'] : null;
+$query = "SELECT username, profilePicture, bio, firstName, lastName FROM user WHERE userID = '$pg'";
+$result = mysqli_query($conn, $query);
+
+if ($result && mysqli_num_rows($result) > 0) {
+  $userData = mysqli_fetch_assoc($result);
+  $name = $userData['username'];
+  $profilePicture = $userData['profilePicture']; // Get profile picture URL
+  $bio = $userData['bio']; // Get user bio
+  $firstName = $userData['firstName'];
+  $lastName = $userData['lastName'];
+
+} else {
+  $profilePicture = 'default-avatar.png'; // Fallback profile picture
+  $bio = 'No bio available'; // Fallback bio\
+  $name = '???';
+  $firstName = '???';
+  $lastName = '???';
+}
+?>
 <!doctype html>
 <html lang="en">
 
@@ -201,7 +231,7 @@
                 </div>
                 <div class="offcanvas-body">
                     <ul class="navbar-nav ms-auto">
-                        <li class="nav-item"><a class="nav-link" href="index.php">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="index.php?id=<?php echo $userID ?>">Home</a></li>
                         <li class="nav-item"><a class="nav-link" href="chatbot.php">AI Chatbot</a></li>
                         <li class="nav-item"><a class="nav-link" href="message.php">Messages</a></li>
                         <li class="nav-item"><a class="nav-link" href="create.php">Create your recipe</a></li>
