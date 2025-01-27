@@ -62,6 +62,58 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_post'])) {
   <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Open+Sans'>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <style>
+    /*
+           .navbar {
+            background: rgba(255, 166, 0, 0.9);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .navbar a.navbar-brand {
+            color: #ffffff;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .navbar .navbar-toggler {
+            border: none;
+            color: #ffffff;
+        }
+
+        .navbar .navbar-toggler-icon {
+            background-image: url('data:image/svg+xml;charset=utf8,%3Csvg xmlns%3D%22http://www.w3.org/2000/svg%22 fill%3D%22white%22 viewBox%3D%220 0 30 30%22%3E%3Cpath stroke%3D%22rgba%280, 0, 0, 0.5%29%22 stroke-width%3D%222%22 stroke-linecap%3D%22round%22 stroke-miterlimit%3D%2210%22 d%3D%22M4 7h22M4 15h22M4 23h22%22/%3E%3C/svg%3E');
+        }
+
+        .navbar .nav-link {
+            color: #1a1a1a;
+            font-weight: 500;
+            padding: 10px 15px;
+            transition: all 0.3s;
+        }
+
+        .navbar .nav-link:hover {
+            color: rgba(255, 218, 67, 0.9);
+
+            text-decoration: underline;
+        }
+
+        .offcanvas {
+            background: rgba(255, 248, 220, 1);
+
+            color: #3e3e3e;
+            box-shadow: -4px 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .offcanvas .offcanvas-title {
+            font-weight: bold;
+            color: rgba(255, 166, 0, 0.9);
+        }
+
+        .offcanvas .btn-close {
+            background-color: rgba(255, 204, 92, 0.8);
+            border-radius: 50%;
+            color: white;
+        }
+    */
     body {
       font-family: 'Roboto', sans-serif;
       background:
@@ -78,6 +130,39 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_post'])) {
 </head>
 
 <body class="w3-theme-l5">
+
+<!--
+    <nav class="navbar body-tertiary px-2">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.php">
+                <img src="https://i.ibb.co/0tWMMf8/download.png" alt="Logo" width="70" height="60"
+                    class="d-inline-block align-items-center px-2">FeedEat</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar"
+                aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar"
+                aria-labelledby="offcanvasNavbarLabel">
+                <div class="offcanvas-header">
+                    <a class="offcanvas-title" id="offcanvasNavbarLabel" href="php">
+                        <img src="https://i.ibb.co/0tWMMf8/download.png" alt="Logo" wwidth="70" height="60"
+                            class="d-inline-block px-2"></a>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+                </div>
+                <div class="offcanvas-body">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">AI Chatbot</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">Messages</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">Create your recipe</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">Profile</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+    -->
 
   <!-- Navbar -->
   <div class="w3-top">
