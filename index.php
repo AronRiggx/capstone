@@ -7,11 +7,30 @@ if (!isset($_SESSION['loggedin']) || !isset($_SESSION['userid'])) {
   exit();
 }
 include_once "connect.php";
-
+$userID = $_SESSION['userid'];
 // Fetch user data
 $pg = isset($_GET['id']) ? $_GET['id'] : null;
 $query = "SELECT username, profilePicture, bio, firstName, lastName FROM user WHERE userID = '$pg'";
 $result = mysqli_query($conn, $query);
+
+// Handle comment submission
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_comment'])) {
+  $comment_content = trim($_POST['comment_content']);
+  $postID = $_POST['post_id'];
+
+  if (!empty($comment_content)) {
+    $comment_content = mysqli_real_escape_string($conn, $comment_content);
+    $userID = $_SESSION['userid'];
+
+    $comment_query = "INSERT INTO comment (postID, userID, content, timestamp) VALUES ('$postID', '$userID', '$comment_content', NOW())";
+    if (!mysqli_query($conn, $comment_query)) {
+      echo "<script>alert('Error: " . mysqli_error($conn) . "');</script>";
+    }
+  } else {
+    echo "<script>alert('Please write something before commenting!');</script>";
+  }
+}
+
 
 if ($result && mysqli_num_rows($result) > 0) {
   $userData = mysqli_fetch_assoc($result);
@@ -149,7 +168,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_post'])) {
         </div>
         <div class="offcanvas-body">
           <ul class="navbar-nav ms-auto">
-            <li class="nav-item"><a class="nav-link" href="profile.php">Profile</a></li>
+            <li class="nav-item"><a class="nav-link" href="profile.php?id=<?php echo $userID ?>">Profile</a></li>
             <li class="nav-item"><a class="nav-link" href="create.php">Create your recipe</a></li>
             <li class="nav-item"><a class="nav-link" href="logout.php">Logout</a></li>
           </ul>
@@ -164,15 +183,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_post'])) {
       <div class="col-md-4">
         <div class="card text-center">
           <div class="card-body">
-            <img src="<?php echo $profilePicture; ?>" alt="Profile" class="rounded-circle profile-picture">
+            <img src="uploads/<?php echo $profilePicture; ?>" alt="Profile" class="rounded-circle profile-picture">
             <h4 class="mt-3"><?php echo $firstName . ' ' . $lastName;
             $name; ?></h4>
-            <h6 class="mt-3"><?php echo '@'. $name; ?></h6>
+            <h6 class="mt-3"><?php echo '@' . $name; ?></h6>
             <p class="text-muted">Bio: <?php echo $bio; ?></p>
           </div>
         </div>
       </div>
-      
+
       <!-- Post Section -->
       <div class="col-md-8">
         <div class="card">
@@ -191,31 +210,58 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_post'])) {
         $result = mysqli_query($conn, $query);
 
         while ($row = mysqli_fetch_assoc($result)) {
+          $postID = $row['postID'];
           $name = $row['username'];
           $profilePicture = $row['profilePicture'] ?: 'default-avatar.png';
           $content = $row['content'];
-          $mediaURL = $row['mediaURL'];
           $timestamp = $row['timestamp'];
           ?>
           <div class="card">
             <div class="card-body">
               <div class="d-flex align-items-center mb-3">
-                <img src="<?php echo $profilePicture; ?>" alt="Avatar" class="rounded-circle" width="50" height="50">
+                <img src="uploads/<?php echo $profilePicture; ?>" alt="Avatar" class="rounded-circle" width="50"
+                  height="50">
                 <div class="ms-3">
-                  <h6 class="mb-0"><?php echo '@'. $name; ?></h6>
+                  <h6 class="mb-0"><?php echo '@' . $name; ?></h6>
                   <small class="text-muted"><?php echo $timestamp; ?></small>
                 </div>
-              </div class="pb-2">
+              </div>
               <p><?php echo $content; ?></p>
-              <?php if ($mediaURL) { ?>
-                <img src="<?php echo $mediaURL; ?>" class="img-fluid rounded" alt="Post Media">
-                <?php } ?>
-                <div class="pt-2">
-                  <button type="button" class="post-button btn btn-primary"><i class="fa-solid fa-heart"></i></button>
-                  <button type="button" class="post-button btn btn-primary"><i class="fa-solid fa-comment"></i>
-                    Comment</button>
-                </div>
-              
+
+              <div class="mt-3">
+                <form action="" method="POST" class="d-flex">
+                  <input type="hidden" name="post_id" value="<?php echo $postID; ?>">
+                  <input type="text" name="comment_content" class="form-control me-2" placeholder="Write a comment..."
+                    required>
+                  <button type="submit" name="submit_comment" class="btn btn-primary">Comment</button>
+                </form>
+              </div>
+
+              <!-- Display Comments -->
+              <div class="mt-3">
+                <?php
+                $comment_query = "SELECT comment.*, user.username, user.profilePicture FROM comment JOIN user ON comment.userID = user.userID WHERE comment.postID = '$postID' ORDER BY comment.timestamp ASC";
+                $comment_result = mysqli_query($conn, $comment_query);
+
+                while ($comment = mysqli_fetch_assoc($comment_result)) {
+                  $commenter_name = $comment['username'];
+                  $commenter_profilePicture = $comment['profilePicture'] ?: 'default-avatar.png';
+                  $comment_content = $comment['content'];
+                  $comment_timestamp = $comment['timestamp'];
+                  ?>
+                  <div class="d-flex align-items-start mt-2">
+                    <img src="uploads/<?php echo $commenter_profilePicture; ?>" alt="Avatar" class="rounded-circle"
+                      width="40" height="40">
+                    <div class="ms-2">
+                      <h6 class="mb-0"><?php echo '@' . $commenter_name; ?></h6>
+                      <small class="text-muted"><?php echo $comment_timestamp; ?></small>
+                      <p class="mb-0"><?php echo $comment_content; ?></p>
+                    </div>
+                  </div>
+                  <?php
+                }
+                ?>
+              </div>
             </div>
           </div>
         <?php } ?>

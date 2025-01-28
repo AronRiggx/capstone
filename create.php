@@ -1,33 +1,26 @@
 <?php
 session_start();
 
-// Redirect to login if the user is not logged in
 if (!isset($_SESSION['loggedin']) || !isset($_SESSION['userid'])) {
     header("Location: login.php");
     exit();
 }
+
 include_once "connect.php";
+$userID = $_SESSION['userid'];
 
 // Fetch user data
-$pg = isset($_GET['id']) ? $_GET['id'] : null;
+$pg = isset($_GET['id']) ? (int) $_GET['id'] : $userID;
 $query = "SELECT username, profilePicture, bio, firstName, lastName FROM user WHERE userID = '$pg'";
 $result = mysqli_query($conn, $query);
-
 if ($result && mysqli_num_rows($result) > 0) {
     $userData = mysqli_fetch_assoc($result);
-    $name = $userData['username'];
-    $profilePicture = $userData['profilePicture'];
-    $bio = $userData['bio'];
-    $firstName = $userData['firstName'];
-    $lastName = $userData['lastName'];
+    $profile = $userData['profilePicture'];
 } else {
-    $profilePicture = 'default-avatar.png';
-    $bio = 'No bio available';
-    $name = 'Unknown';
-    $firstName = 'Unknown';
-    $lastName = 'Unknown';
+    $profile = "uploads/def.png"; // Use a default image if no profile picture exists
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -172,9 +165,12 @@ if ($result && mysqli_num_rows($result) > 0) {
         <div class="row">
             <!-- Sidebar -->
             <nav class="col-12 col-md-3 col-lg-2 sidebar d-flex flex-column align-items-center py-4">
-                <div class="profile-picture mb-3"></div>
+                <div class="profile-picture mb-3"><img src="uploads/<?php echo $profile ?>"
+                        class="rounded-circle img-fluid">
+                </div>
                 <button id="profile-button" class="btn btn-secondary w-75 mb-2">Profile</button>
                 <button id="create-button" class="btn btn-secondary w-75 mb-2">Create</button>
+
             </nav>
 
             <!-- Main Content -->

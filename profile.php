@@ -1,32 +1,51 @@
 <?php
 session_start();
 
-// Redirect to login if the user is not logged in
 if (!isset($_SESSION['loggedin']) || !isset($_SESSION['userid'])) {
     header("Location: login.php");
     exit();
 }
+
 include_once "connect.php";
+$userID = $_SESSION['userid'];
 
 // Fetch user data
-$pg = isset($_GET['id']) ? $_GET['id'] : null;
+$pg = isset($_GET['id']) ? (int) $_GET['id'] : $userID;
 $query = "SELECT username, profilePicture, bio, firstName, lastName FROM user WHERE userID = '$pg'";
 $result = mysqli_query($conn, $query);
+if ($result && mysqli_num_rows($result) > 0) {
+    $userData = mysqli_fetch_assoc($result);
+    $profile = $userData['profilePicture'];
+} else {
+    $profile = "uploads/def.png"; // Use a default image if no profile picture exists
+}
 
 // Update Profile Picture
 if (isset($_POST['updatePicture'])) {
     if (isset($_FILES['profilePic']) && $_FILES['profilePic']['error'] === 0) {
         $targetDir = "uploads/";
         $fileName = basename($_FILES['profilePic']['name']);
+        $fileName = mysqli_real_escape_string($conn, $fileName); // Sanitize filename
         $targetFilePath = $targetDir . $fileName;
 
+        // Ensure uploads directory exists
+        if (!is_dir($targetDir)) {
+            mkdir($targetDir, 0755, true);
+        }
+
         if (move_uploaded_file($_FILES['profilePic']['tmp_name'], $targetFilePath)) {
-            $query = "UPDATE user SET profilePicture = '$fileName' WHERE userID = {$_SESSION['userid']}";
-            mysqli_query($conn, $query);
-            echo "<script>alert('Profile picture updated successfully!');</script>";
+            $query = "UPDATE user SET profilePicture = '$fileName' WHERE userID = $userID";
+            if (mysqli_query($conn, $query)) {
+                echo "<script>alert('Profile picture updated successfully!');</script>";
+                $profile = $fileName; // Update the displayed profile picture
+            } else {
+                echo "<script>alert('Database update failed.');</script>";
+            }
         } else {
             echo "<script>alert('Error uploading the file.');</script>";
         }
+    } else {
+        echo "<script>alert('No file uploaded or an error occurred.');</script>";
     }
 }
 
@@ -142,6 +161,7 @@ if (isset($_POST['updatePassword'])) {
             height: 100px;
             background-color: rgb(247, 218, 105);
             border-radius: 50%;
+            object-fit: cover;
         }
 
         .content {
@@ -164,6 +184,10 @@ if (isset($_POST['updatePassword'])) {
             height: 200px;
             background-color: #b0b0b0;
             border-radius: 10px;
+        }
+
+        img {
+            overflow: hidden;
         }
 
         .btn-secondary {
@@ -199,8 +223,7 @@ if (isset($_POST['updatePassword'])) {
                 </div>
                 <div class="offcanvas-body">
                     <ul class="navbar-nav ms-auto">
-                        <li class="nav-item"><a class="nav-link"
-                                href="index.php?id=<?php echo $_SESSION['userid'] ?>">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="index.php?id=<?php echo $userID ?>">Home</a></li>
                         <li class="nav-item"><a class="nav-link" href="logout.php">Logout</a></li>
                     </ul>
                 </div>
@@ -211,9 +234,10 @@ if (isset($_POST['updatePassword'])) {
         <div class="row">
             <!-- Sidebar -->
             <nav class="col-12 col-md-3 col-lg-2 sidebar d-flex flex-column align-items-center py-4">
-                <div class="profile-picture mb-3"><img src="uploads/1e6.jpg"></div>
-                <button id="profile-button" class="btn btn-secondary w-75 mb-2">Profile</button>
-                <button id="create-button" class="btn btn-secondary w-75 mb-2">Create</button>
+                <div class="profile-picture mb-3"><img src="uploads/<?php echo $profile ?>" class="rounded-circle img-fluid">
+                </div>
+                <a class="btn btn-secondary w-75 mb-2" href="profile.php?id=<?php echo $pg ?>">Profile</a>
+                <a class="btn btn-secondary w-75 mb-2" href="create.php?id=<?php echo $pg ?>">Create</a>
 
             </nav>
 
