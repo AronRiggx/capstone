@@ -234,7 +234,8 @@ if (isset($_POST['updatePassword'])) {
         <div class="row">
             <!-- Sidebar -->
             <nav class="col-12 col-md-3 col-lg-2 sidebar d-flex flex-column align-items-center py-4">
-                <div class="profile-picture mb-3"><img src="uploads/<?php echo $profile ?>" class="rounded-circle img-fluid">
+                <div class="profile-picture mb-3"><img src="uploads/<?php echo $profile ?>"
+                        class="rounded-circle img-fluid">
                 </div>
                 <a class="btn btn-secondary w-75 mb-2" href="profile.php?id=<?php echo $pg ?>">Profile</a>
                 <a class="btn btn-secondary w-75 mb-2" href="create.php?id=<?php echo $pg ?>">Create</a>
@@ -296,22 +297,39 @@ if (isset($_POST['updatePassword'])) {
                         <button type="submit" name="updatePassword" class="btn btn-primary">Update Password</button>
                     </form>
                 </div>
+                <?PHP
+                $query = "SELECT recipeName, recipeID FROM recipes ORDER BY recipeID DESC"; // Adjust column and table names as needed
+                $result = mysqli_query($conn, $query);
+                ?>
 
                 <h3 class="my-3">Your Recipes</h3>
                 <div class="recipe-list">
-                    <div class="recipe-card">
-                        <img src="https://via.placeholder.com/350x200" alt="Recipe Image">
-                        <p class="mt-2">Recipe 1</p>
-                    </div>
-                    <div class="recipe-card">
-                        <img src="https://via.placeholder.com/350x200" alt="Recipe Image">
-                        <p class="mt-2">Recipe 2</p>
-                    </div>
-                    <div class="recipe-card">
-                        <img src="https://via.placeholder.com/350x200" alt="Recipe Image">
-                        <p class="mt-2">Recipe 3</p>
-                    </div>
-                </div>
+                    <?php
+                    $query = "SELECT recipeName, recipeID, description, instructions, category FROM recipes ORDER BY recipeID DESC"; // Fetch description as well
+                    $result = mysqli_query($conn, $query);
+                        if ($result && mysqli_num_rows($result) > 0) {
+                            foreach ($result as $row) {
+                                $recipeName = htmlspecialchars($row['recipeName']); // Escape special characters
+                                $recipeID = htmlspecialchars($row['recipeID']); // Escape special characters
+                                $description = htmlspecialchars($row['description']); // Escape special characters
+                                $instructions = htmlspecialchars($row['instructions']); // Escape special characters
+                                $category = htmlspecialchars($row['category']); // Escape special characters
+                                ?>
+                                <div class="recipe-card">
+                                    <h4 class="mt-2"> <?php echo $recipeName; ?></h4>
+                                    <p class="text-muted">Category: <?= $category ?></p>
+                                    <p><strong>Description:</strong> <?= $description ?></p>
+                                    <p><strong>Instructions:</strong> <?= $instructions ?></p>
+                                </div>
+                                <?php
+                            }
+                        } else {
+                            // Display fallback message if no recipes are found
+                            ?>
+                            <p>No recipes found. <a href="create.php">Create one now!</a></p>
+                            <?php
+                        }
+                        ?>
             </main>
         </div>
     </div>

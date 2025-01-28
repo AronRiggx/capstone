@@ -19,7 +19,27 @@ if ($result && mysqli_num_rows($result) > 0) {
 } else {
     $profile = "uploads/def.png"; // Use a default image if no profile picture exists
 }
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Retrieve form data
+    $recipeName = mysqli_real_escape_string($conn, $_POST['recipeName']);
+    $category = mysqli_real_escape_string($conn, $_POST['category']);
+    $description = mysqli_real_escape_string($conn, $_POST['description']);
+    $instructions = mysqli_real_escape_string($conn, $_POST['instructions']);
+
+    // Insert the data into the database
+    $query = "INSERT INTO recipes (recipeName, category, description, instructions) 
+              VALUES ('$recipeName', '$category', '$description', '$instructions')";
+
+    if (mysqli_query($conn, $query)) {
+        echo "<script>alert('Recipe successfully added!');</script>";
+        echo "<script>window.location.href = 'create.php';</script>";
+    } else {
+        echo "<script>alert('Error: " . mysqli_error($conn) . "');</script>";
+    }
+}
 ?>
+
 
 
 <!DOCTYPE html>
@@ -175,33 +195,36 @@ if ($result && mysqli_num_rows($result) > 0) {
 
             <!-- Main Content -->
             <main class="col-12 col-md-9 col-lg-10 p-4">
-                <div class="image-placeholder bg-warning-subtle rounded mb-4" style="height: 200px;"></div>
-                <h3>CREATE YOUR OWN RECIPE</h3>
-                <div class="form-container mt-4">
-                    <div class="row g-3">
-                        <div class="form-group col-12 col-md-6">
-                            <label for="recipe-name" class="form-label">Name your recipe!</label>
-                            <input type="text" id="recipe-name" class="form-control">
+                <form method="POST">
+                    <div class="image-placeholder bg-warning-subtle rounded mb-4" style="height: 200px;"></div>
+                    <h3>CREATE YOUR OWN RECIPE</h3>
+                    <div class="form-container mt-4">
+                        <div class="row g-3">
+                            <div class="form-group col-12 col-md-6">
+                                <label for="recipe-name" class="form-label">Name your recipe!</label>
+                                <input type="text" id="recipe-name" class="form-control" name="recipeName">
+                            </div>
+                            <div class="form-group col-12 col-md-6">
+                                <label for="category" class="form-label">Category:</label>
+                                <select id="category" class="form-select" name="category">
+                                    <option value="vegan">Vegan</option>
+                                    <option value="non-vegetarian">Non-Vegetarian</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-12">
+                                <label for="description" class="form-label">Describe your recipe:</label>
+                                <textarea id="description" class="form-control" rows="4" name="description"></textarea>
+                            </div>
+                            <div class="form-group col-12">
+                                <label for="instructions" class="form-label">Instructions on how to cook this
+                                    meal:</label>
+                                <textarea id="instructions" class="form-control" rows="4"
+                                    name="instructions"></textarea>
+                            </div>
                         </div>
-                        <div class="form-group col-12 col-md-6">
-                            <label for="category" class="form-label">Category:</label>
-                            <select id="category" class="form-select">
-                                <option value="vegetarian">Vegetarian</option>
-                                <option value="vegan">Vegan</option>
-                                <option value="non-vegetarian">Non-Vegetarian</option>
-                            </select>
-                        </div>
-                        <div class="form-group col-12">
-                            <label for="description" class="form-label">Describe your recipe:</label>
-                            <textarea id="description" class="form-control" rows="4"></textarea>
-                        </div>
-                        <div class="form-group col-12">
-                            <label for="instructions" class="form-label">Instructions on how to cook this meal:</label>
-                            <textarea id="instructions" class="form-control" rows="4"></textarea>
-                        </div>
+                        <button class="btn submit-button mt-3 w-100">POST</button>
                     </div>
-                    <button class="btn submit-button mt-3 w-100">POST</button>
-                </div>
+                </form>
             </main>
         </div>
     </div>
