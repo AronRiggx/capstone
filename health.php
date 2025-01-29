@@ -20,7 +20,7 @@ if (isset($_POST["submit"])) {
     $results = executeQuery($insertquery);
 
     // Redirect to login.php
-    header("Location: health.php");
+    header("Location: login.php");
     exit();
 }
 ?>
@@ -49,38 +49,40 @@ if (isset($_POST["submit"])) {
             <div class="signup-container p-4">
                 <h2 class="text-center pb-3" style="font-size: 30px;">Create Your Account</h2>
                 <form action="signup.php" method="POST">
-                    <h5>Personal Information</h5>
+                    <h5>Health Information</h5>
                     <div class="form-group">
-                        <input type="text" name="username" class="form-control" placeholder="Username" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="text" name="firstName" class="form-control" placeholder="First Name" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="text" name="lastName" class="form-control" placeholder="Last Name" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="email" name="email" class="form-control" placeholder="Email" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="password" name="password" class="form-control" placeholder="Password" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="password" name="confirm_password" class="form-control"
-                            placeholder="Confirm Password" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="number" name="age" class="form-control" placeholder="Age" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Gender:</label>
-                        <select name="gender" class="form-control" required>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                            <option value="Other">Other</option>
+                        <label>Do you have any health conditions?</label>
+                        <select name="has_condition" id="hasCondition" class="form-control" required>
+                            <option value="No">~</option>
+                            <option value="No">No</option>
+                            <option value="Yes">Yes</option>
                         </select>
                     </div>
-                    <button type="submit" name="submit" class="btn btn-primary btn-block">Next</button>
+                    <div id="conditionSelection" class="form-group" style="display: none;">
+                        <label>Select your health condition:</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="condition" value="Diabetes"> Diabetes
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="condition" value="Hypertension">
+                            Hypertension
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="condition" value="Heart Disease">
+                            Heart Disease
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="condition" value="Other"> Other
+                        </div>
+                    </div>
+                    <div class="container">
+                        <div class="row">
+                            <button type="button" class="col btn btn-secondary btn-block mt-2 mx-2"
+                                onclick="goBack()">Back</button>
+                            <button type="submit" name="submit"
+                                class="col btn btn-primary btn-block mt-2 mx-2">Submit</button>
+                        </div>
+                    </div>
                 </form>
 
                 <div class="login-redirect mt-3">
@@ -94,6 +96,9 @@ if (isset($_POST["submit"])) {
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
+        function goBack() {
+            window.history.back();
+        }
         document.addEventListener("DOMContentLoaded", function () {
             var hasCondition = document.getElementById("hasCondition");
             var conditionSelection = document.getElementById("conditionSelection");

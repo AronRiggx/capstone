@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 27, 2025 at 03:46 PM
--- Server version: 10.4.28-MariaDB
--- PHP Version: 8.2.4
+-- Generation Time: Jan 29, 2025 at 01:33 PM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -28,25 +28,19 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `comment` (
-  `CommentID` int(11) NOT NULL,
-  `PostID` int(11) DEFAULT NULL,
-  `UserID` int(11) DEFAULT NULL,
-  `Content` text DEFAULT NULL,
-  `Timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `commentID` int(11) NOT NULL,
+  `postID` int(11) DEFAULT NULL,
+  `userID` int(11) DEFAULT NULL,
+  `content` text DEFAULT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- --------------------------------------------------------
-
 --
--- Table structure for table `friendship`
+-- Dumping data for table `comment`
 --
 
-CREATE TABLE `friendship` (
-  `FriendshipID` int(11) NOT NULL,
-  `UserID1` int(11) DEFAULT NULL,
-  `UserID2` int(11) DEFAULT NULL,
-  `Timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+INSERT INTO `comment` (`commentID`, `postID`, `userID`, `content`, `timestamp`) VALUES
+(8, 33, 11, 'Hii!', '2025-01-28 08:48:23');
 
 -- --------------------------------------------------------
 
@@ -55,25 +49,11 @@ CREATE TABLE `friendship` (
 --
 
 CREATE TABLE `likes` (
-  `LikesID` int(11) NOT NULL,
-  `PostID` int(11) DEFAULT NULL,
-  `CommentID` int(11) DEFAULT NULL,
-  `UserID` int(11) DEFAULT NULL,
-  `Timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `message`
---
-
-CREATE TABLE `message` (
-  `MessageID` int(11) NOT NULL,
-  `SenderID` int(11) DEFAULT NULL,
-  `ReceiverID` int(11) DEFAULT NULL,
-  `Content` text DEFAULT NULL,
-  `Timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `likesID` int(11) NOT NULL,
+  `postID` int(11) DEFAULT NULL,
+  `commentID` int(11) DEFAULT NULL,
+  `userID` int(11) DEFAULT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -83,25 +63,47 @@ CREATE TABLE `message` (
 --
 
 CREATE TABLE `post` (
-  `UserID` int(11) DEFAULT NULL,
+  `postID` int(11) NOT NULL,
+  `userID` int(11) DEFAULT NULL,
   `content` text DEFAULT NULL,
   `mediaType` varchar(20) DEFAULT NULL,
   `mediaURL` varchar(255) DEFAULT NULL,
-  `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `PostID` int(11) NOT NULL
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `post`
 --
 
-INSERT INTO `post` (`UserID`, `content`, `mediaType`, `mediaURL`, `timestamp`, `PostID`) VALUES
-(1, 'Just finished a new project! Excited to share it soon.', 'image', '/media/images/project.jpg', '2025-01-26 08:21:14', 1),
-(2, 'Check out this cool video I found on coding.', 'video', '/media/videos/coding_tutorial.mp4', '2025-01-26 08:21:24', 2),
-(1, 'Had a great time at the conference today! Learned so much.', 'image', '/media/images/conference.jpg', '2025-01-26 08:21:31', 3),
-(1, 'Feeling inspired! Ready to take on new challenges.', 'text', '', '2025-01-26 08:21:34', 4),
-(1, 'Check out my latest blog post on web development tips!', 'link', 'https://example.com/blog/web-development-tips', '2025-01-26 08:21:38', 5),
-(1, 'hi', NULL, NULL, '2025-01-27 13:09:01', 6);
+INSERT INTO `post` (`postID`, `userID`, `content`, `mediaType`, `mediaURL`, `timestamp`) VALUES
+(1, 1, 'Beautiful day today!', NULL, NULL, '2025-01-26 22:38:15'),
+(14, 1, 'hello world', NULL, NULL, '2025-01-27 00:01:42'),
+(27, 1, 'work 😤😤😤', NULL, NULL, '2025-01-27 19:37:44'),
+(33, 11, 'Hello world!!!', NULL, NULL, '2025-01-28 08:48:17');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `recipes`
+--
+
+CREATE TABLE `recipes` (
+  `recipeID` int(11) NOT NULL,
+  `recipeName` varchar(255) NOT NULL,
+  `category` enum('Vegetarian','Vegan','Non-Vegan') NOT NULL,
+  `description` text NOT NULL,
+  `instructions` text NOT NULL,
+  `imagePath` varchar(255) DEFAULT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `recipes`
+--
+
+INSERT INTO `recipes` (`recipeID`, `recipeName`, `category`, `description`, `instructions`, `imagePath`, `timestamp`) VALUES
+(5, 'Pork Imbutido with Melted Cheese', '', 'Pork Imbutido with tasty melted cheese sprinkled on top, perfect for birthdays!', 'TBA', NULL, '2025-01-28 06:49:52'),
+(6, 'Beef Bistek', '', 'Beef bistek asdasd', 'asdasdasdasd', NULL, '2025-01-28 08:50:34');
 
 -- --------------------------------------------------------
 
@@ -110,73 +112,97 @@ INSERT INTO `post` (`UserID`, `content`, `mediaType`, `mediaURL`, `timestamp`, `
 --
 
 CREATE TABLE `user` (
-  `UserID` int(11) NOT NULL,
+  `userID` int(11) NOT NULL,
   `username` varchar(50) DEFAULT NULL,
-  `Email` varchar(100) DEFAULT NULL,
-  `Password` varchar(255) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `password` varchar(255) DEFAULT NULL,
   `firstName` varchar(100) DEFAULT NULL,
-  `lastName` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
-  `Bio` text DEFAULT NULL,
-  `profilePicture` varchar(255) DEFAULT './upload/def.png'
+  `lastName` varchar(100) DEFAULT NULL,
+  `bio` text DEFAULT NULL,
+  `profilePicture` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `user`
 --
 
-INSERT INTO `user` (`UserID`, `username`, `Email`, `Password`, `firstName`, `lastName`, `Bio`, `profilePicture`) VALUES
-(1, 'chanchan', 'kaikaigarvill@gmail.com', '1818', NULL, NULL, NULL, './upload/def.png'),
-(2, 'aaron', 'aaron@gmail.com', '1111', NULL, NULL, NULL, './upload/def.png');
+INSERT INTO `user` (`userID`, `username`, `email`, `password`, `firstName`, `lastName`, `bio`, `profilePicture`) VALUES
+(1, 'aronriggx', 'testmail123@test.com', '12345', 'Aron Riggx', 'Ancheta', 'backend', '474001408_1000241352147863_849569943580970266_n.jpg'),
+(2, 'b.almazar', 'testmail2@test.com', '12345', 'Ben', 'Almazar', 'frontend', NULL),
+(3, 'jm.austria', 'testtesttest@test.com', '12345', 'John Michael', 'Austria', 'Documentation', NULL),
+(4, 'd.panares', 'test123123@test.com', '12345', 'Deneb', 'Panares', 'Documentation', NULL),
+(5, 'k.tangpus', 'test1test@test.com', '12345', 'Kim', 'Tangpus', 'Front end', NULL),
+(6, 'sisig', 'cheesecheese@mail.com', '12345', 'cheese', 'cheeser', NULL, '341264204_615105070475946_2798124951581051518_n.jpg'),
+(10, 'benasaur', 'benasaur@mail.com', '12345', 'ben', 'almazar', NULL, '457629559_524420586760428_8582772303624462233_n.jpg'),
+(11, 'beny', 'bennyalmazar@gmail.com', '123', 'BEN', 'ALMAZAR', NULL, '341264204_615105070475946_2798124951581051518_n.jpg');
 
 --
 -- Indexes for dumped tables
 --
 
 --
--- Indexes for table `friendship`
+-- Indexes for table `comment`
 --
-ALTER TABLE `friendship`
-  ADD PRIMARY KEY (`FriendshipID`);
+ALTER TABLE `comment`
+  ADD PRIMARY KEY (`commentID`),
+  ADD KEY `PostID` (`postID`),
+  ADD KEY `UserID` (`userID`);
 
 --
 -- Indexes for table `likes`
 --
 ALTER TABLE `likes`
-  ADD PRIMARY KEY (`LikesID`);
-
---
--- Indexes for table `message`
---
-ALTER TABLE `message`
-  ADD PRIMARY KEY (`MessageID`);
+  ADD PRIMARY KEY (`likesID`),
+  ADD KEY `PostID` (`postID`),
+  ADD KEY `CommentID` (`commentID`),
+  ADD KEY `UserID` (`userID`);
 
 --
 -- Indexes for table `post`
 --
 ALTER TABLE `post`
-  ADD PRIMARY KEY (`PostID`);
+  ADD PRIMARY KEY (`postID`),
+  ADD KEY `UserID` (`userID`);
+
+--
+-- Indexes for table `recipes`
+--
+ALTER TABLE `recipes`
+  ADD PRIMARY KEY (`recipeID`);
 
 --
 -- Indexes for table `user`
 --
 ALTER TABLE `user`
-  ADD PRIMARY KEY (`UserID`);
+  ADD PRIMARY KEY (`userID`);
 
 --
 -- AUTO_INCREMENT for dumped tables
 --
 
 --
+-- AUTO_INCREMENT for table `comment`
+--
+ALTER TABLE `comment`
+  MODIFY `commentID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
 -- AUTO_INCREMENT for table `post`
 --
 ALTER TABLE `post`
-  MODIFY `PostID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `postID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+
+--
+-- AUTO_INCREMENT for table `recipes`
+--
+ALTER TABLE `recipes`
+  MODIFY `recipeID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `UserID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `userID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- Constraints for dumped tables
@@ -187,14 +213,7 @@ ALTER TABLE `user`
 --
 ALTER TABLE `comment`
   ADD CONSTRAINT `comment_ibfk_1` FOREIGN KEY (`PostID`) REFERENCES `post` (`PostID`),
-  ADD CONSTRAINT `comment_ibfk_2` FOREIGN KEY (`UserID`) REFERENCES `user` (`UserID`);
-
---
--- Constraints for table `friendship`
---
-ALTER TABLE `friendship`
-  ADD CONSTRAINT `friendship_ibfk_1` FOREIGN KEY (`UserID1`) REFERENCES `user` (`UserID`),
-  ADD CONSTRAINT `friendship_ibfk_2` FOREIGN KEY (`UserID2`) REFERENCES `user` (`UserID`);
+  ADD CONSTRAINT `comment_ibfk_2` FOREIGN KEY (`UserID`) REFERENCES `user` (`userID`);
 
 --
 -- Constraints for table `likes`
@@ -202,20 +221,13 @@ ALTER TABLE `friendship`
 ALTER TABLE `likes`
   ADD CONSTRAINT `likes_ibfk_1` FOREIGN KEY (`PostID`) REFERENCES `post` (`PostID`),
   ADD CONSTRAINT `likes_ibfk_2` FOREIGN KEY (`CommentID`) REFERENCES `comment` (`CommentID`),
-  ADD CONSTRAINT `likes_ibfk_3` FOREIGN KEY (`UserID`) REFERENCES `user` (`UserID`);
-
---
--- Constraints for table `message`
---
-ALTER TABLE `message`
-  ADD CONSTRAINT `message_ibfk_1` FOREIGN KEY (`SenderID`) REFERENCES `user` (`UserID`),
-  ADD CONSTRAINT `message_ibfk_2` FOREIGN KEY (`ReceiverID`) REFERENCES `user` (`UserID`);
+  ADD CONSTRAINT `likes_ibfk_3` FOREIGN KEY (`UserID`) REFERENCES `user` (`userID`);
 
 --
 -- Constraints for table `post`
 --
 ALTER TABLE `post`
-  ADD CONSTRAINT `post_ibfk_1` FOREIGN KEY (`UserID`) REFERENCES `user` (`UserID`);
+  ADD CONSTRAINT `post_ibfk_1` FOREIGN KEY (`UserID`) REFERENCES `user` (`userID`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
