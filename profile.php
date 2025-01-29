@@ -17,7 +17,7 @@ if ($result && mysqli_num_rows($result) > 0) {
     $userData = mysqli_fetch_assoc($result);
     $profile = $userData['profilePicture'];
 } else {
-    $profile = "uploads/def.png"; // Use a default image if no profile picture exists
+    $profile = !empty($userData['profilePicture']) ? $userData['profilePicture'] : "def.png"; // Assign default if empty
 }
 
 // Update Profile Picture
@@ -234,8 +234,9 @@ if (isset($_POST['updatePassword'])) {
         <div class="row">
             <!-- Sidebar -->
             <nav class="col-12 col-md-3 col-lg-2 sidebar d-flex flex-column align-items-center py-4">
-                <div class="profile-picture mb-3"><img src="uploads/<?php echo $profile ?>"
-                        class="rounded-circle img-fluid">
+                <div class="profile-picture mb-3">
+                    <img src="uploads/<?php echo $profile ?>" class="rounded-circle img-fluid"
+                        onerror="this.src='uploads/def.png';">
                 </div>
                 <a class="btn btn-secondary w-75 mb-2" href="profile.php?id=<?php echo $pg ?>">Profile</a>
                 <a class="btn btn-secondary w-75 mb-2" href="create.php?id=<?php echo $pg ?>">Create</a>
@@ -307,29 +308,29 @@ if (isset($_POST['updatePassword'])) {
                     <?php
                     $query = "SELECT recipeName, recipeID, description, instructions, category FROM recipes ORDER BY recipeID DESC"; // Fetch description as well
                     $result = mysqli_query($conn, $query);
-                        if ($result && mysqli_num_rows($result) > 0) {
-                            foreach ($result as $row) {
-                                $recipeName = htmlspecialchars($row['recipeName']); // Escape special characters
-                                $recipeID = htmlspecialchars($row['recipeID']); // Escape special characters
-                                $description = htmlspecialchars($row['description']); // Escape special characters
-                                $instructions = htmlspecialchars($row['instructions']); // Escape special characters
-                                $category = htmlspecialchars($row['category']); // Escape special characters
-                                ?>
-                                <div class="recipe-card">
-                                    <h4 class="mt-2"> <?php echo $recipeName; ?></h4>
-                                    <p class="text-muted">Category: <?= $category ?></p>
-                                    <p><strong>Description:</strong> <?= $description ?></p>
-                                    <p><strong>Instructions:</strong> <?= $instructions ?></p>
-                                </div>
-                                <?php
-                            }
-                        } else {
-                            // Display fallback message if no recipes are found
+                    if ($result && mysqli_num_rows($result) > 0) {
+                        foreach ($result as $row) {
+                            $recipeName = htmlspecialchars($row['recipeName']); // Escape special characters
+                            $recipeID = htmlspecialchars($row['recipeID']); // Escape special characters
+                            $description = htmlspecialchars($row['description']); // Escape special characters
+                            $instructions = htmlspecialchars($row['instructions']); // Escape special characters
+                            $category = htmlspecialchars($row['category']); // Escape special characters
                             ?>
-                            <p>No recipes found. <a href="create.php">Create one now!</a></p>
+                            <div class="recipe-card">
+                                <h4 class="mt-2"> <?php echo $recipeName; ?></h4>
+                                <p class="text-muted">Category: <?= $category ?></p>
+                                <p><strong>Description:</strong> <?= $description ?></p>
+                                <p><strong>Instructions:</strong> <?= $instructions ?></p>
+                            </div>
                             <?php
                         }
+                    } else {
+                        // Display fallback message if no recipes are found
                         ?>
+                        <p>No recipes found. <a href="create.php">Create one now!</a></p>
+                        <?php
+                    }
+                    ?>
             </main>
         </div>
     </div>

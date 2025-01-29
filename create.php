@@ -17,7 +17,7 @@ if ($result && mysqli_num_rows($result) > 0) {
     $userData = mysqli_fetch_assoc($result);
     $profile = $userData['profilePicture'];
 } else {
-    $profile = "uploads/def.png"; // Use a default image if no profile picture exists
+    $profile = !empty($userData['profilePicture']) ? $userData['profilePicture'] : "def.png"; // Assign default if empty
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -185,8 +185,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <div class="row">
             <!-- Sidebar -->
             <nav class="col-12 col-md-3 col-lg-2 sidebar d-flex flex-column align-items-center py-4">
-                <div class="profile-picture mb-3"><img src="uploads/<?php echo $profile ?>"
-                        class="rounded-circle img-fluid">
+                <div class="profile-picture mb-3">
+                    <img src="uploads/<?php echo $profile ?>" class="rounded-circle img-fluid"
+                        onerror="this.src='uploads/def.png';">
                 </div>
                 <button id="profile-button" class="btn btn-secondary w-75 mb-2">Profile</button>
                 <button id="create-button" class="btn btn-secondary w-75 mb-2">Create</button>

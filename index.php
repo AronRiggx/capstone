@@ -39,8 +39,9 @@ if ($result && mysqli_num_rows($result) > 0) {
   $bio = $userData['bio'];
   $firstName = $userData['firstName'];
   $lastName = $userData['lastName'];
+
 } else {
-  $profilePicture = 'default-avatar.png';
+  $profilePicture = './uploads/def.png';
   $bio = 'No bio available';
   $name = 'Unknown';
   $firstName = 'Unknown';
@@ -183,7 +184,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_post'])) {
       <div class="col-md-4">
         <div class="card text-center">
           <div class="card-body">
-            <img src="uploads/<?php echo $profilePicture; ?>" alt="Profile" class="rounded-circle profile-picture">
+            <img src="uploads/<?php echo $profilePicture; ?>" alt="Profile" class="rounded-circle profile-picture"
+              onerror="this.src='./uploads/def.png';">
             <h4 class="mt-3"><?php echo $firstName . ' ' . $lastName;
             $name; ?></h4>
             <h6 class="mt-3"><?php echo '@' . $name; ?></h6>
@@ -212,7 +214,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_post'])) {
         while ($row = mysqli_fetch_assoc($result)) {
           $postID = $row['postID'];
           $name = $row['username'];
-          $profilePicture = $row['profilePicture'] ?: 'default-avatar.png';
+          $profilePicture = $row['profilePicture'] ?: 'uploads/def.png';
           $content = $row['content'];
           $timestamp = $row['timestamp'];
           ?>
@@ -220,7 +222,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_post'])) {
             <div class="card-body">
               <div class="d-flex align-items-center mb-3">
                 <img src="uploads/<?php echo $profilePicture; ?>" alt="Avatar" class="rounded-circle" width="50"
-                  height="50">
+                  height="50" onerror="this.src='./uploads/def.png';">
                 <div class="ms-3">
                   <h6 class="mb-0"><?php echo '@' . $name; ?></h6>
                   <small class="text-muted"><?php echo $timestamp; ?></small>
@@ -251,7 +253,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_post'])) {
                   ?>
                   <div class="d-flex align-items-start mt-2">
                     <img src="uploads/<?php echo $commenter_profilePicture; ?>" alt="Avatar" class="rounded-circle"
-                      width="40" height="40">
+                      width="40" height="40" onerror="this.src='./uploads/def.png';">
                     <div class="ms-2">
                       <h6 class="mb-0"><?php echo '@' . $commenter_name; ?></h6>
                       <small class="text-muted"><?php echo $comment_timestamp; ?></small>
