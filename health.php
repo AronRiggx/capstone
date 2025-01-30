@@ -1,29 +1,41 @@
 <?php
 session_start();
-
 include_once "connect.php";
 
-if (isset($_POST["submit"])) {
-
-    $uName = $_POST["username"];
-    $email = $_POST["email"];
-    $pass = $_POST["password"];
-    $firstName = $_POST["firstName"];
-    $lastName = $_POST["lastName"];
-    $conF = $_POST["confirm_password"];
-
-
-    // Insert into riceque_info table
-    $insertquery = "INSERT INTO user (Username, Email, Password, firstName, lastName) 
-  VALUES ('$uName',  '$email', '$pass', '$firstName', '$lastName')";
-    // Execute both queries
-    $results = executeQuery($insertquery);
-
-    // Redirect to login.php
-    header("Location: login.php");
+// Ensure user is logged in and user_id is set
+if (!isset($_SESSION["user_id"])) {
+    echo "<script>alert('Session expired. Please sign up again.'); window.location.href = 'signup.php';</script>";
     exit();
 }
+
+$userId = $_SESSION["user_id"];
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $hasCondition = isset($_POST["has_condition"]) ? $_POST["has_condition"] : "No";
+    $condition = (isset($_POST['condition']) && is_array($_POST['condition']) && $hasCondition === "Yes")
+        ? implode(", ", $_POST['condition'])
+        : NULL;
+
+    // Update the existing user's health condition
+    $updateQuery = "UPDATE user SET has_condition = ?, `condition` = ? WHERE userID = ?";
+    $stmt = mysqli_prepare($conn, $updateQuery);
+    mysqli_stmt_bind_param($stmt, "ssi", $hasCondition, $condition, $userId);
+
+    if (mysqli_stmt_execute($stmt)) {
+        echo "<script>alert('Health conditions updated successfully!'); window.location.href = 'login.php';</script>";
+        exit();
+    } else {
+        echo "<script>alert('Error updating health conditions: " . mysqli_error($conn) . "');</script>";
+    }
+
+    mysqli_stmt_close($stmt);
+}
+
+mysqli_close($conn);
 ?>
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -48,12 +60,12 @@ if (isset($_POST["submit"])) {
             <!-- Sign-Up Form Section -->
             <div class="signup-container p-4">
                 <h2 class="text-center pb-3" style="font-size: 30px;">Create Your Account</h2>
-                <form action="signup.php" method="POST">
+                <form action="health.php" method="POST">
                     <h5>Health Information</h5>
                     <div class="form-group">
                         <label>Do you have any health conditions?</label>
                         <select name="has_condition" id="hasCondition" class="form-control" required>
-                            <option value="No">~</option>
+                            <option value="~">~</option>
                             <option value="No">No</option>
                             <option value="Yes">Yes</option>
                         </select>
@@ -61,18 +73,19 @@ if (isset($_POST["submit"])) {
                     <div id="conditionSelection" class="form-group" style="display: none;">
                         <label>Select your health condition:</label>
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="condition" value="Diabetes"> Diabetes
+                            <input class="form-check-input" type="checkbox" name="condition[]" value="Diabetes">
+                            Diabetes
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="condition" value="Hypertension">
+                            <input class="form-check-input" type="checkbox" name="condition[]" value="Hypertension">
                             Hypertension
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="condition" value="Heart Disease">
+                            <input class="form-check-input" type="checkbox" name="condition[]" value="Heart Disease">
                             Heart Disease
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="condition" value="Other"> Other
+                            <input class="form-check-input" type="checkbox" name="condition[]" value="Other"> Other
                         </div>
                     </div>
                     <div class="container">

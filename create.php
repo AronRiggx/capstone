@@ -28,8 +28,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $instructions = mysqli_real_escape_string($conn, $_POST['instructions']);
 
     // Insert the data into the database
-    $query = "INSERT INTO recipes (recipeName, category, description, instructions) 
-              VALUES ('$recipeName', '$category', '$description', '$instructions')";
+    $query = "INSERT INTO recipes (recipeName, category, description, instructions, userID) 
+              VALUES ('$recipeName', '$category', '$description', '$instructions', '$userID')";
 
     if (mysqli_query($conn, $query)) {
         echo "<script>alert('Recipe successfully added!');</script>";

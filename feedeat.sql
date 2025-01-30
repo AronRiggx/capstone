@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 29, 2025 at 01:33 PM
+-- Generation Time: Jan 30, 2025 at 11:12 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -94,16 +94,19 @@ CREATE TABLE `recipes` (
   `description` text NOT NULL,
   `instructions` text NOT NULL,
   `imagePath` varchar(255) DEFAULT NULL,
-  `timestamp` timestamp NOT NULL DEFAULT current_timestamp()
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
+  `userID` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `recipes`
 --
 
-INSERT INTO `recipes` (`recipeID`, `recipeName`, `category`, `description`, `instructions`, `imagePath`, `timestamp`) VALUES
-(5, 'Pork Imbutido with Melted Cheese', '', 'Pork Imbutido with tasty melted cheese sprinkled on top, perfect for birthdays!', 'TBA', NULL, '2025-01-28 06:49:52'),
-(6, 'Beef Bistek', '', 'Beef bistek asdasd', 'asdasdasdasd', NULL, '2025-01-28 08:50:34');
+INSERT INTO `recipes` (`recipeID`, `recipeName`, `category`, `description`, `instructions`, `imagePath`, `timestamp`, `userID`) VALUES
+(5, 'Pork Imbutido with Melted Cheese', '', 'Pork Imbutido with tasty melted cheese sprinkled on top, perfect for birthdays!', 'TBA', NULL, '2025-01-28 06:49:52', 1),
+(6, 'Beef Bistek', '', 'Beef bistek asdasd', 'asdasdasdasd', NULL, '2025-01-28 08:50:34', 11),
+(8, 'Coleslaw with Cheese and Egg', '', 'fseefsafssfa', 'asdfasdfasdf', NULL, '2025-01-30 08:05:46', 1),
+(9, 'Arrozcaldo with Spicy Peppers', '', 'asdasdasd', 'asdasdasdasd', NULL, '2025-01-30 08:06:32', 11);
 
 -- --------------------------------------------------------
 
@@ -119,22 +122,27 @@ CREATE TABLE `user` (
   `firstName` varchar(100) DEFAULT NULL,
   `lastName` varchar(100) DEFAULT NULL,
   `bio` text DEFAULT NULL,
-  `profilePicture` varchar(255) DEFAULT NULL
+  `profilePicture` varchar(255) DEFAULT NULL,
+  `age` int(10) UNSIGNED NOT NULL DEFAULT 18,
+  `gender` enum('Male','Female','Other','Prefer not to say') NOT NULL DEFAULT 'Prefer not to say',
+  `condition` varchar(255) DEFAULT NULL,
+  `has_condition` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `user`
 --
 
-INSERT INTO `user` (`userID`, `username`, `email`, `password`, `firstName`, `lastName`, `bio`, `profilePicture`) VALUES
-(1, 'aronriggx', 'testmail123@test.com', '12345', 'Aron Riggx', 'Ancheta', 'backend', '474001408_1000241352147863_849569943580970266_n.jpg'),
-(2, 'b.almazar', 'testmail2@test.com', '12345', 'Ben', 'Almazar', 'frontend', NULL),
-(3, 'jm.austria', 'testtesttest@test.com', '12345', 'John Michael', 'Austria', 'Documentation', NULL),
-(4, 'd.panares', 'test123123@test.com', '12345', 'Deneb', 'Panares', 'Documentation', NULL),
-(5, 'k.tangpus', 'test1test@test.com', '12345', 'Kim', 'Tangpus', 'Front end', NULL),
-(6, 'sisig', 'cheesecheese@mail.com', '12345', 'cheese', 'cheeser', NULL, '341264204_615105070475946_2798124951581051518_n.jpg'),
-(10, 'benasaur', 'benasaur@mail.com', '12345', 'ben', 'almazar', NULL, '457629559_524420586760428_8582772303624462233_n.jpg'),
-(11, 'beny', 'bennyalmazar@gmail.com', '123', 'BEN', 'ALMAZAR', NULL, '341264204_615105070475946_2798124951581051518_n.jpg');
+INSERT INTO `user` (`userID`, `username`, `email`, `password`, `firstName`, `lastName`, `bio`, `profilePicture`, `age`, `gender`, `condition`, `has_condition`) VALUES
+(1, 'aronriggx', 'testmail123@test.com', '12345', 'Aron Riggx', 'Ancheta', 'backend', '474001408_1000241352147863_849569943580970266_n.jpg', 0, 'Prefer not to say', NULL, 0),
+(2, 'b.almazar', 'testmail2@test.com', '12345', 'Ben', 'Almazar', 'frontend', NULL, 0, 'Prefer not to say', NULL, 0),
+(3, 'jm.austria', 'testtesttest@test.com', '12345', 'John Michael', 'Austria', 'Documentation', NULL, 0, 'Prefer not to say', NULL, 0),
+(4, 'd.panares', 'test123123@test.com', '12345', 'Deneb', 'Panares', 'Documentation', NULL, 0, 'Prefer not to say', NULL, 0),
+(5, 'k.tangpus', 'test1test@test.com', '12345', 'Kim', 'Tangpus', 'Front end', NULL, 0, 'Prefer not to say', NULL, 0),
+(6, 'sisig', 'cheesecheese@mail.com', '12345', 'cheese', 'cheeser', NULL, '341264204_615105070475946_2798124951581051518_n.jpg', 0, 'Prefer not to say', NULL, 0),
+(10, 'benasaur', 'benasaur@mail.com', '12345', 'ben', 'almazar', NULL, '457629559_524420586760428_8582772303624462233_n.jpg', 0, 'Prefer not to say', NULL, 0),
+(11, 'beny', 'bennyalmazar@gmail.com', '123', 'BEN', 'ALMAZAR', NULL, '341264204_615105070475946_2798124951581051518_n.jpg', 0, 'Prefer not to say', NULL, 0),
+(15, 'kaine', 'kainewhite@mail.com', '$2y$10$CQh8OHeEY6CY7DEvMYe.OOo0QBBc/LUYqDpxwqzPigRspAvz7U4QO', 'white', 'woman', NULL, NULL, 78, 'Female', NULL, 0);
 
 --
 -- Indexes for dumped tables
@@ -168,7 +176,8 @@ ALTER TABLE `post`
 -- Indexes for table `recipes`
 --
 ALTER TABLE `recipes`
-  ADD PRIMARY KEY (`recipeID`);
+  ADD PRIMARY KEY (`recipeID`),
+  ADD KEY `fk_user` (`userID`);
 
 --
 -- Indexes for table `user`
@@ -196,13 +205,13 @@ ALTER TABLE `post`
 -- AUTO_INCREMENT for table `recipes`
 --
 ALTER TABLE `recipes`
-  MODIFY `recipeID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `recipeID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `userID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `userID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- Constraints for dumped tables
@@ -228,6 +237,12 @@ ALTER TABLE `likes`
 --
 ALTER TABLE `post`
   ADD CONSTRAINT `post_ibfk_1` FOREIGN KEY (`UserID`) REFERENCES `user` (`userID`);
+
+--
+-- Constraints for table `recipes`
+--
+ALTER TABLE `recipes`
+  ADD CONSTRAINT `fk_user` FOREIGN KEY (`userID`) REFERENCES `user` (`userID`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

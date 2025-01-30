@@ -298,6 +298,7 @@ if (isset($_POST['updatePassword'])) {
                         <button type="submit" name="updatePassword" class="btn btn-primary">Update Password</button>
                     </form>
                 </div>
+
                 <?PHP
                 $query = "SELECT recipeName, recipeID FROM recipes ORDER BY recipeID DESC"; // Adjust column and table names as needed
                 $result = mysqli_query($conn, $query);
@@ -306,18 +307,24 @@ if (isset($_POST['updatePassword'])) {
                 <h3 class="my-3">Your Recipes</h3>
                 <div class="recipe-list">
                     <?php
-                    $query = "SELECT recipeName, recipeID, description, instructions, category FROM recipes ORDER BY recipeID DESC"; // Fetch description as well
+                    // Fetch only the recipes that belong to the logged-in user
+                    $query = "SELECT recipeName, recipeID, description, instructions, category 
+              FROM recipes 
+              WHERE userID = $userID 
+              ORDER BY recipeID DESC";  // Adjust based on your database structure
+                    
                     $result = mysqli_query($conn, $query);
+
                     if ($result && mysqli_num_rows($result) > 0) {
                         foreach ($result as $row) {
-                            $recipeName = htmlspecialchars($row['recipeName']); // Escape special characters
-                            $recipeID = htmlspecialchars($row['recipeID']); // Escape special characters
-                            $description = htmlspecialchars($row['description']); // Escape special characters
-                            $instructions = htmlspecialchars($row['instructions']); // Escape special characters
-                            $category = htmlspecialchars($row['category']); // Escape special characters
+                            $recipeName = htmlspecialchars($row['recipeName']);
+                            $recipeID = htmlspecialchars($row['recipeID']);
+                            $description = htmlspecialchars($row['description']);
+                            $instructions = htmlspecialchars($row['instructions']);
+                            $category = htmlspecialchars($row['category']);
                             ?>
                             <div class="recipe-card">
-                                <h4 class="mt-2"> <?php echo $recipeName; ?></h4>
+                                <h4 class="mt-2"><?= $recipeName; ?></h4>
                                 <p class="text-muted">Category: <?= $category ?></p>
                                 <p><strong>Description:</strong> <?= $description ?></p>
                                 <p><strong>Instructions:</strong> <?= $instructions ?></p>
@@ -325,12 +332,12 @@ if (isset($_POST['updatePassword'])) {
                             <?php
                         }
                     } else {
-                        // Display fallback message if no recipes are found
                         ?>
                         <p>No recipes found. <a href="create.php">Create one now!</a></p>
                         <?php
                     }
                     ?>
+                </div>
             </main>
         </div>
     </div>

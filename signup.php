@@ -1,29 +1,62 @@
 <?php
 session_start();
-
 include_once "connect.php";
 
 if (isset($_POST["submit"])) {
+    $uName = isset($_POST["username"]) ? mysqli_real_escape_string($conn, $_POST["username"]) : "";
+    $email = isset($_POST["email"]) ? mysqli_real_escape_string($conn, $_POST["email"]) : "";
+    $pass = isset($_POST["password"]) ? $_POST["password"] : "";
+    $firstName = isset($_POST["firstName"]) ? mysqli_real_escape_string($conn, $_POST["firstName"]) : "";
+    $lastName = isset($_POST["lastName"]) ? mysqli_real_escape_string($conn, $_POST["lastName"]) : "";
+    $conF = isset($_POST["confirm_password"]) ? $_POST["confirm_password"] : "";
+    $age = isset($_POST["age"]) && $_POST["age"] !== "" ? (int) $_POST["age"] : "NULL";
+    $gender = isset($_POST["gender"]) ? mysqli_real_escape_string($conn, $_POST["gender"]) : "";
 
-    $uName = $_POST["username"];
-    $email = $_POST["email"];
-    $pass = $_POST["password"];
-    $firstName = $_POST["firstName"];
-    $lastName = $_POST["lastName"];
-    $conF = $_POST["confirm_password"];
+    // Validate Age
+    if ($age !== "NULL" && ($age <= 0 || $age > 120)) {
+        echo "<script>alert('Invalid age. Please enter a valid age between 1 and 120.');</script>";
+        exit();
+    }
 
+    // Check if passwords match
+    if ($pass !== $conF) {
+        echo "<script>alert('Passwords do not match. Please try again.');</script>";
+        exit();
+    }
 
-    // Insert into riceque_info table
-    $insertquery = "INSERT INTO user (Username, Email, Password, firstName, lastName) 
-  VALUES ('$uName',  '$email', '$pass', '$firstName', '$lastName')";
-    // Execute both queries
-    $results = executeQuery($insertquery);
+    // Check for existing username or email
+    $checkQuery = "SELECT * FROM user WHERE Username = '$uName' OR Email = '$email' OR age = $age";
+    $result = mysqli_query($conn, $checkQuery);
 
-    // Redirect to login.php
-    header("Location: health.php");
-    exit();
+    if (mysqli_num_rows($result) > 0) {
+        echo "<script>alert('Username, Email, or Age is already in use. Please use different details.');</script>";
+        exit();
+    }
+
+    // Hash password before storing
+    $hashedPass = password_hash($pass, PASSWORD_BCRYPT);
+
+    // Insert user into the database
+    $insertquery = "INSERT INTO user (Username, Email, Password, firstName, lastName, age, gender) 
+                    VALUES ('$uName', '$email', '$hashedPass', '$firstName', '$lastName', $age, '$gender')";
+
+    if (mysqli_query($conn, $insertquery)) {
+        // Get the newly inserted user's ID
+        $userId = mysqli_insert_id($conn);
+
+        // Store user ID in session
+        $_SESSION["user_id"] = $userId;
+
+        // Redirect to health conditions page
+        echo "<script>alert('Registration successful!'); window.location.href = 'health.php';</script>";
+        exit();
+    } else {
+        echo "<script>alert('Error: " . mysqli_error($conn) . "');</script>";
+    }
 }
 ?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -70,7 +103,8 @@ if (isset($_POST["submit"])) {
                             placeholder="Confirm Password" required>
                     </div>
                     <div class="form-group">
-                        <input type="number" name="age" class="form-control" placeholder="Age" required>
+                        <label for="age">Age:</label>
+                        <input type="number" name="age" id="age" class="form-control" placeholder="Age" required>
                     </div>
                     <div class="form-group">
                         <label>Gender:</label>
@@ -80,7 +114,8 @@ if (isset($_POST["submit"])) {
                             <option value="Other">Other</option>
                         </select>
                     </div>
-                    <button type="submit" name="submit" class="btn btn-primary btn-block">Next</button>
+                    <button type="submit" name="submit" id="submit-button"
+                        class="btn btn-primary btn-block">Next</button>
                 </form>
 
                 <div class="login-redirect mt-3">
@@ -93,25 +128,48 @@ if (isset($_POST["submit"])) {
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             var hasCondition = document.getElementById("hasCondition");
             var conditionSelection = document.getElementById("conditionSelection");
-            var submitButton = document.querySelector("button[name='submit']");
+            var submitButton = document.getElementById("submit-button"); // Ensure ID matches your button
 
-            // Initially disable the submit button
-            submitButton.disabled = true;
+            // Enable the button when the form is valid
+            function checkFormValidity() {
+                var username = document.querySelector("input[name='username']").value.trim();
+                var email = document.querySelector("input[name='email']").value.trim();
+                var password = document.querySelector("input[name='password']").value.trim();
+                var confirmPassword = document.querySelector("input[name='confirm_password']").value.trim();
+                var age = document.querySelector("input[name='age']").value.trim();
+                var gender = document.querySelector("select[name='gender']").value;
 
-            hasCondition.addEventListener("change", function () {
-                submitButton.disabled = (this.value === "~");
-
-                if (this.value === "Yes") {
-                    conditionSelection.style.display = "block";
+                // Check if all fields are filled and passwords match
+                if (username && email && password && confirmPassword && age && gender && password === confirmPassword) {
+                    submitButton.disabled = false;
+                    submitButton.classList.add("btn-primary"); // Add Bootstrap primary class for glow effect
+                } else {
+                    submitButton.disabled = true;
+                    submitButton.classList.remove("btn-primary");
                 }
-                else {
-                    conditionSelection.style.display = "none";
-                }
+            }
+
+            // Attach event listeners to all fields
+            document.querySelectorAll("input, select").forEach(function (field) {
+                field.addEventListener("input", checkFormValidity);
             });
+
+            // Handle "Has Condition" logic
+            if (hasCondition) {
+                hasCondition.addEventListener("change", function () {
+                    if (this.value === "Yes") {
+                        conditionSelection.style.display = "block";
+                    } else {
+                        conditionSelection.style.display = "none";
+                    }
+                    checkFormValidity(); // Ensure button state updates
+                });
+            }
         });
     </script>
 </body>
@@ -167,7 +225,7 @@ if (isset($_POST["submit"])) {
         color: #007bff;
     }
 
-    .login-redirect a:hover {
+    ogin-redirect a:hover {
         text-decoration: underline;
     }
 </style>
